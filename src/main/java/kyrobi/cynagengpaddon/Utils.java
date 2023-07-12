@@ -19,7 +19,7 @@ public class Utils {
 
     //String jsonFilePath = "data.json"; // Replace "data.json" with the path to your JSON file
 
-    public ItemStack itemGenerator(Material materialType, String itemName, String ... lore){
+    public static ItemStack itemGenerator(Material materialType, String itemName, String ... lore){
         ItemStack myItem = new ItemStack(materialType);
         ItemMeta myMeta = myItem.getItemMeta();
 
@@ -31,7 +31,17 @@ public class Utils {
         return myItem;
     }
 
-    public ItemStack itemGenerator(Material materialType, String itemName){
+    public static ItemStack itemGenerator(Material materialType, String itemName, ArrayList<String> lore){
+        ItemStack myItem = new ItemStack(materialType);
+        ItemMeta myMeta = myItem.getItemMeta();
+
+        myMeta.setDisplayName(itemName);
+        myMeta.setLore(lore);
+        myItem.setItemMeta(myMeta);
+        return myItem;
+    }
+
+    public static ItemStack itemGenerator(Material materialType, String itemName){
         ItemStack myItem = new ItemStack(materialType);
         ItemMeta myMeta = myItem.getItemMeta();
 
@@ -40,7 +50,7 @@ public class Utils {
         return myItem;
     }
 
-    public ItemStack itemGenerator(Material materialType){
+    public static ItemStack itemGenerator(Material materialType){
         ItemStack myItem = new ItemStack(materialType);
         ItemMeta myMeta = myItem.getItemMeta();
 
@@ -77,7 +87,7 @@ public class Utils {
 
     }
 
-    public void setClaimName(long ID, String name){
+    public static void setClaimName(long ID, String name){
 
     }
 }
