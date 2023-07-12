@@ -1,0 +1,9 @@
+name: CynagenGPAddon
+version: '1.0-SNAPSHOT'
+main: kyrobi.cynagengpaddon.CynagenGPAddon
+api-version: '1.19'
+commands:
+  claims:
+    description: Open the claims with all your claims
+    aliases:
+      - claim

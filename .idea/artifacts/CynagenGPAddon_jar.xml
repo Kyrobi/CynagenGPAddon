@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CynagenGPAddon:jar">
+    <output-path>$PROJECT_DIR$/../../../..</output-path>
+    <root id="archive" name="CynagenGPAddon.jar">
+      <element id="module-output" name="CynagenGPAddon" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/stefvanschie/inventoryframework/IF/0.10.11/IF-0.10.11.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
