@@ -114,7 +114,15 @@ public class ClaimsList {
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 5);
         pages.populateWithItemStacks(allClaims);
         pages.setOnClick(event -> {
-            claimsOptionMenu((Player) event.getWhoClicked());
+            long claimID = 0;
+
+            String itemLoreFirstLine = event.getCurrentItem().getItemMeta().getLore().get(0);
+            // System.out.println("Uncleaned: " + itemLoreFirstLine);
+            // Using the substring to cut out the first digit since it's leftover from color code
+            String cleanedUpString = itemLoreFirstLine.replaceAll("[^\\p{N}]", "").substring(1);
+            event.getWhoClicked().sendMessage(cleanedUpString);
+
+            claimsOptionMenu((Player) event.getWhoClicked(), Long.parseLong(cleanedUpString));
         });
 
         gui.addPane(pages);
