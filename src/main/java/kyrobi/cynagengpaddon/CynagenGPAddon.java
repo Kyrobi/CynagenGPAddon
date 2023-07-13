@@ -10,7 +10,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static kyrobi.cynagengpaddon.Utils.readClaimsIntoMemory;
+import static kyrobi.cynagengpaddon.Utils.writeClaimsToDisk;
+
 public final class CynagenGPAddon extends JavaPlugin {
+
+    public static CynagenGPAddon plugin;
 
     static File dbFile = new File("");
     public static String folderDirectory = String.valueOf(
@@ -19,6 +24,9 @@ public final class CynagenGPAddon extends JavaPlugin {
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+        readClaimsIntoMemory();
+
+        plugin = this;
 
         File yourFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "data.json");
         if(!yourFile.exists()){
@@ -42,6 +50,6 @@ public final class CynagenGPAddon extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        writeClaimsToDisk();
     }
 }

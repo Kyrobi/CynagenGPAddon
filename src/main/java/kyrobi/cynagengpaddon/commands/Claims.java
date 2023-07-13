@@ -9,9 +9,14 @@ import org.bukkit.command.CommandSender;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Arrays;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
+import static kyrobi.cynagengpaddon.Utils.claimsNameCache;
+import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
 public class Claims implements CommandExecutor {
 

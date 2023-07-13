@@ -2,12 +2,14 @@ package kyrobi.cynagengpaddon;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -15,7 +17,10 @@ import java.util.*;
 
 import static kyrobi.cynagengpaddon.CynagenGPAddon.folderDirectory;
 
+
 public class Utils {
+
+    public static HashMap<Long, String> claimsNameCache = new HashMap<>();
 
     //String jsonFilePath = "data.json"; // Replace "data.json" with the path to your JSON file
 
@@ -58,66 +63,74 @@ public class Utils {
         return myItem;
     }
 
+//    public static String getClaimName(long ID){
+//
+//        String name = null;
+//
+//        try (BufferedReader reader = new BufferedReader(new FileReader(folderDirectory))) {
+//            Gson gson = new Gson();
+//
+//            Type type = new TypeToken<HashMap<String, String>>() {}.getType();
+//            Map<String, String> idNameMap = gson.fromJson(reader, type);
+//
+//            // Print the ID and Name pairs
+//            if(idNameMap == null){
+//                return "null";
+//            }
+//
+//            name = idNameMap.getOrDefault(Long.toString(ID), "Unnamed");
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if(name == null){
+//            return "Unnamed";
+//        }
+//        return name;
+//    }
+
     public static String getClaimName(long ID){
+        if(claimsNameCache == null){
+            System.out.println("Hashmap is null");
+            return "Unnamed";
+        }
 
-        String name = null;
+        else if(claimsNameCache.isEmpty()){
+            System.out.println("Hashmap is empty");
+            return "Unnamed";
+        }
 
+        return claimsNameCache.getOrDefault(ID, "Unnamed");
+    }
+
+    public static void setClaimName(long ID, String name){
+        claimsNameCache.put(ID, name);
+    }
+
+    public static void readClaimsIntoMemory(){
         try (BufferedReader reader = new BufferedReader(new FileReader(folderDirectory))) {
             Gson gson = new Gson();
 
-            Type type = new TypeToken<HashMap<String, String>>() {}.getType();
-            Map<String, String> idNameMap = gson.fromJson(reader, type);
-
-            // Print the ID and Name pairs
-            if(idNameMap == null){
-                return "null";
-            }
-
-            name = idNameMap.getOrDefault(Long.toString(ID), "Unnamed");
+            Type type = new TypeToken<HashMap<Long, String>>() {}.getType();
+            claimsNameCache = gson.fromJson(reader, type);
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        if(name == null){
-            return "Unnamed";
-        }
-        return name;
-
     }
 
-    public static void setClaimName(long ID, String name){
+    public static void writeClaimsToDisk(){
+        // Specify the file path where you want to write the JSON data
         String filePath = folderDirectory;
-        String key = String.valueOf(ID);
-        String value = name;
 
-        try {
-            // Read the JSON file and parse it into a JsonObject
-            JsonParser parser = new JsonParser();
-            JsonReader reader = new JsonReader(new FileReader(filePath));
-            JsonObject jsonObject = parser.parse(reader).getAsJsonObject();
-
-            // Check if the key already exists in the JsonObject
-            if (jsonObject.has(key)) {
-                // Key already exists, update the value
-                jsonObject.addProperty(key, value);
-            } else {
-                // Key does not exist, add a new key-value pair
-                jsonObject.addProperty(key, value);
-            }
-
-            // Convert the updated JsonObject back to a JSON string
-            Gson gson = new Gson();
-            String jsonString = gson.toJson(jsonObject);
-
-            // Write the JSON string back to the file, replacing the existing content
-            FileWriter fileWriter = new FileWriter(new File(filePath));
-            fileWriter.write(jsonString);
-            fileWriter.close();
-
-            System.out.println("JSON file updated successfully!");
-
+        // Convert HashMap to JSON and write to the file
+        try (FileWriter writer = new FileWriter(filePath)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(claimsNameCache, writer);
+            System.out.println("HashMap values have been written to the JSON file.");
         } catch (IOException e) {
             e.printStackTrace();
         }

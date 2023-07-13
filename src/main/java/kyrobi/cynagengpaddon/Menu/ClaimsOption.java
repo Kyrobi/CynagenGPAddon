@@ -17,6 +17,7 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.slf4j.helpers.Util;
 
 import java.util.ArrayList;
@@ -51,7 +52,8 @@ public class ClaimsOption {
         ItemStack backButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "Back");
         navigation.addItem(new GuiItem(backButton, event -> {
                 // event.getWhoClicked().closeInventory();
-                claimsListMenu((Player) event.getWhoClicked());
+            claimsListMenu((Player) event.getWhoClicked());
+
                 event.setCancelled(true);
         }), 4, 5 ); // Indexed 4 to the right, Index 5 down
 
@@ -91,7 +93,14 @@ public class ClaimsOption {
                 confirmEvent.setCancelled(true);
                 confirmEvent.getWhoClicked().closeInventory();
 
-                setClaimName(claimID, nameCache.get(event.getWhoClicked().getName()));
+                if(nameCache.get(event.getWhoClicked().getName()).equals("")){
+                    setClaimName(claimID, "No name");
+                    confirmEvent.getWhoClicked().sendMessage(ChatColor.RED + "Warning: Name cannot contain special characters or be empty.");
+                } else{
+                    setClaimName(claimID, nameCache.get(event.getWhoClicked().getName()));
+                    confirmEvent.getWhoClicked().sendMessage(ChatColor.GREEN + "Claim renamed to: " + ChatColor.GRAY + nameCache.get(event.getWhoClicked().getName()));
+                }
+
                 nameCache.remove(event.getWhoClicked().getName());
             }), 0, 0);
 
@@ -103,7 +112,8 @@ public class ClaimsOption {
             event.setCancelled(true);
 
             anvilGui.setOnNameInputChanged(s -> {
-                nameCache.put(event.getWhoClicked().getName(), s);
+                String cleanedString = s.replaceAll("[^\\x00-\\x7F]", "");
+                nameCache.put(event.getWhoClicked().getName(), cleanedString);
             });
 
         }), 4, 2 );

@@ -76,7 +76,12 @@ public class ClaimsList {
             ItemMeta itemMeta = itemStack.getItemMeta();
 
             // Change the lore and name of the object added
+            // long startTime = System.nanoTime();
             itemMeta.setDisplayName(ChatColor.GOLD + Utils.getClaimName(i.getID()));
+//            long endTime = System.nanoTime();
+//            long duration = (endTime - startTime) / 1000000;
+//            long durationN = (endTime - startTime);
+//            System.out.println("Duration:" + duration + "ms" + "  (" + durationN + ")");
 
             Location lesserCorner = i.getLesserBoundaryCorner();
             Location greaterCorner = i.getGreaterBoundaryCorner();
@@ -120,7 +125,7 @@ public class ClaimsList {
             // System.out.println("Uncleaned: " + itemLoreFirstLine);
             // Using the substring to cut out the first digit since it's leftover from color code
             String cleanedUpString = itemLoreFirstLine.replaceAll("[^\\p{N}]", "").substring(1);
-            event.getWhoClicked().sendMessage(cleanedUpString);
+            //event.getWhoClicked().sendMessage(cleanedUpString);
 
             claimsOptionMenu((Player) event.getWhoClicked(), Long.parseLong(cleanedUpString));
         });
@@ -170,7 +175,7 @@ public class ClaimsList {
         exitButtonLore.add(ChatColor.GRAY + "Stats");
         exitButtonLore.add(ChatColor.GRAY + "▸ Claims: " + ChatColor.WHITE + playerClaims.size());
         exitButtonLore.add(ChatColor.GRAY + "▸ Total used: " + ChatColor.WHITE + totalClaimBlocksUsed);
-        exitButtonLore.add(ChatColor.GRAY + "▸ Total remaining: " + ChatColor.WHITE + playerData.getRemainingClaimBlocks());
+        exitButtonLore.add(ChatColor.GRAY + "▸ Total remaining: " + ChatColor.GREEN + playerData.getRemainingClaimBlocks());
         exitButtonLore.add(ChatColor.GRAY + "--- Source ---");
         exitButtonLore.add(ChatColor.GRAY + "▸ From playtime: " + ChatColor.WHITE + playerData.getAccruedClaimBlocks());
         exitButtonLore.add(ChatColor.GRAY + "▸ From voting/admin: " + ChatColor.WHITE + playerData.getBonusClaimBlocks());
