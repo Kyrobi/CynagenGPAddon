@@ -55,6 +55,7 @@ public class ClaimsList {
 
         // Loop through each claim and add it to the GUI
         List<ItemStack> allClaims = new ArrayList<>();
+        int claimsCounter = 0;
         for(Claim i: playerClaims){
             ItemStack itemStack;
             if(i.getLesserBoundaryCorner().getWorld().getEnvironment().equals(World.Environment.NORMAL)){
@@ -112,6 +113,14 @@ public class ClaimsList {
             allClaims.add(
                     itemStack
             );
+
+            if(claimsCounter > 1000){
+                player.sendMessage(ChatColor.RED + "WARNING: You have over 500 claims. We have limited the amount\n" +
+                        "of claims shown to you to 500.\nConsider removing some unused claims.");
+                break;
+            }
+
+            claimsCounter++;
         }
 
         ChestGui gui = new ChestGui(6, "Your claims");
