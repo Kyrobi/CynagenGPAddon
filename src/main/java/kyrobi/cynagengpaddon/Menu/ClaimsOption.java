@@ -14,35 +14,42 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
+import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
+
 public class ClaimsOption {
 
     public static void claimsOptionMenu(Player player){
 
-        ChestGui gui = new ChestGui(6, "Shop");
-
-        PaginatedPane pages = new PaginatedPane(0, 0, 9, 5);
-        pages.populateWithItemStacks(Arrays.asList(
-                new ItemStack(Material.GOLDEN_SWORD),
-                new ItemStack(Material.LIGHT_GRAY_GLAZED_TERRACOTTA, 16),
-                new ItemStack(Material.COOKED_COD, 64)
-        ));
-        pages.setOnClick(event -> {
-            //buy item
-        });
-
-        gui.addPane(pages);
+        ChestGui gui = new ChestGui(6, "Claim Settings");
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
-        background.addItem(new GuiItem(new ItemStack(Material.BLACK_STAINED_GLASS_PANE)));
+        ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
+        background.addItem(new GuiItem(borderBlock, inventoryClickEvent -> {
+            inventoryClickEvent.setCancelled(true);
+        }));
         background.setRepeat(true);
         background.setPriority(Pane.Priority.LOWEST);
 
         gui.addPane(background);
 
+        StaticPane navigation = new StaticPane(0, 0, 9, 6);
+
+
         ItemStack backButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "Back");
-        StaticPane navigation = new StaticPane(0, 5, 9, 1);
-        navigation.addItem(new GuiItem(backButton, event ->
-                event.getWhoClicked().closeInventory()), 4, 0);
+        navigation.addItem(new GuiItem(backButton, event -> {
+                // event.getWhoClicked().closeInventory();
+                claimsListMenu((Player) event.getWhoClicked());
+                event.setCancelled(true);
+        }), 4, 5 ); // Indexed 4 to the right, Index 5 down
+
+
+        // We add the renaming option
+        ItemStack renameButton = Utils.itemGenerator(Material.NAME_TAG, ChatColor.GREEN + "Rename");
+        navigation.addItem(new GuiItem(renameButton, event -> {
+            // event.getWhoClicked().closeInventory();
+            claimsListMenu((Player) event.getWhoClicked());
+            event.setCancelled(true);
+        }), 4, 2 );
 
         gui.addPane(navigation);
         gui.show(player);

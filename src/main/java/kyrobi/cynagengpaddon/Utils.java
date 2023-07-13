@@ -2,14 +2,14 @@ package kyrobi.cynagengpaddon;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -88,6 +88,38 @@ public class Utils {
     }
 
     public static void setClaimName(long ID, String name){
+        String filePath = folderDirectory;
+        String key = String.valueOf(ID);
+        String value = name;
 
+        try {
+            // Read the JSON file and parse it into a JsonObject
+            JsonParser parser = new JsonParser();
+            JsonReader reader = new JsonReader(new FileReader(filePath));
+            JsonObject jsonObject = parser.parse(reader).getAsJsonObject();
+
+            // Check if the key already exists in the JsonObject
+            if (jsonObject.has(key)) {
+                // Key already exists, update the value
+                jsonObject.addProperty(key, value);
+            } else {
+                // Key does not exist, add a new key-value pair
+                jsonObject.addProperty(key, value);
+            }
+
+            // Convert the updated JsonObject back to a JSON string
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(jsonObject);
+
+            // Write the JSON string back to the file, replacing the existing content
+            FileWriter fileWriter = new FileWriter(new File(filePath));
+            fileWriter.write(jsonString);
+            fileWriter.close();
+
+            System.out.println("JSON file updated successfully!");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
