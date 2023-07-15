@@ -1,6 +1,8 @@
 package kyrobi.cynagengpaddon;
 
+import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
 import kyrobi.cynagengpaddon.commands.Claims;
+import kyrobi.cynagengpaddon.commands.Eject;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,8 +46,10 @@ public final class CynagenGPAddon extends JavaPlugin {
 
         Bukkit.getConsoleSender().sendMessage("CynagenGPAddon");
 
+        new ClaimVisualizer(this);
 
         this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
+        this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
     }
 
     @Override

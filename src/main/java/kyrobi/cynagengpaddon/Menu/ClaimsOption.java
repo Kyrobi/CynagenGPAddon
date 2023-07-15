@@ -1,5 +1,7 @@
 package kyrobi.cynagengpaddon.Menu;
 
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.Trade;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
@@ -7,12 +9,16 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import it.unimi.dsi.fastutil.chars.CharObjectImmutablePair;
+import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Utils;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -20,20 +26,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.slf4j.helpers.Util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
+import static kyrobi.cynagengpaddon.Menu.ClaimsRename.claimsRenamingMenu;
 import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
 public class ClaimsOption {
 
-    public static HashMap<String, String> nameCache = new HashMap<>();
-
     public static void claimsOptionMenu(Player player, long claimID){
 
+        Essentials ess = (Essentials) Bukkit.getServer().getPluginManager().getPlugin("Essentials");
         ChestGui gui = new ChestGui(6, "Claim Settings");
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
@@ -59,64 +67,64 @@ public class ClaimsOption {
 
 
 
-        // We add the renaming option
-        ItemStack renameButton = Utils.itemGenerator(Material.NAME_TAG, ChatColor.GREEN + "Rename");
+        /*
+        Renaming option
+         */
+        ArrayList<String> renameButtonLore = new ArrayList<>();
+        renameButtonLore.add(ChatColor.GRAY + "Name your claim, yo!");
+        ItemStack renameButton = Utils.itemGenerator(Material.NAME_TAG, ChatColor.GREEN + "Rename", renameButtonLore);
         navigation.addItem(new GuiItem(renameButton, event -> {
 
+            claimsRenamingMenu((Player) event.getWhoClicked(), event, claimID);
+            event.setCancelled(true);
 
-            AnvilGui anvilGui = new AnvilGui("Type in a name");
-            anvilGui.setCost((short)0);
-            anvilGui.setOnGlobalClick(inventoryClickEvent -> event.setCancelled(true));
+        }), 4, 2 );
 
-            // Pane for the confirmation button
-            StaticPane confirmPane = new StaticPane(0, 0, 1, 1);
-            ItemStack confirmButton = new ItemStack(Material.GREEN_WOOL);
-            ItemMeta confirmButtonMeta = confirmButton.getItemMeta();
-            confirmButtonMeta.setDisplayName(ChatColor.GREEN + "Confirm");
-            confirmButton.setItemMeta(confirmButtonMeta);
+        /*
+        Teleport option
+         */
+        int teleportCost = 800;
+        ArrayList<String> teleportButtonLore = new ArrayList<>();
+        teleportButtonLore.add(ChatColor.GRAY + "▸ Cost: " + ChatColor.GREEN + "$" + teleportCost);
+        teleportButtonLore.add(" ");
+        teleportButtonLore.add(ChatColor.GRAY + "Click to teleport to");
+        teleportButtonLore.add(ChatColor.GRAY + "your claim.");
+        teleportButtonLore.add(" ");
+        teleportButtonLore.add(ChatColor.GRAY + "(Not meant as replacement for");
+        teleportButtonLore.add(ChatColor.GRAY + "/home, hence the cost.)");
+        ItemStack teleportButton = Utils.itemGenerator(Material.ENDER_PEARL, ChatColor.GREEN + "Teleport", teleportButtonLore);
+        navigation.addItem(new GuiItem(teleportButton, event -> {
 
-            // Pane for the name
-            StaticPane fillerPane = new StaticPane(0, 0, 1, 1);
-            ItemStack fillerButton = new ItemStack(Material.PAPER);
-            ItemMeta fillerButtonMeta = fillerButton.getItemMeta();
-            fillerButtonMeta.setDisplayName(ChatColor.GRAY + "Change Claim Name");
-            fillerButton.setItemMeta(fillerButtonMeta);
+            if(ess.getUser(player.getUniqueId()).getMoney().intValue() >= teleportCost){
+                Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+                Location loc = claim.getGreaterBoundaryCorner();
 
-            // Filler button
-            fillerPane.addItem(new GuiItem(fillerButton, fillerPanelEvent -> {
-                fillerPanelEvent.setCancelled(true);
-            }), 0, 0);
+                Bukkit.getScheduler().runTaskAsynchronously(CynagenGPAddon.plugin, () -> {
+                    // Didn't know you could do .getHighestBlock async, but gg
+                    int safeY = loc.getWorld().getHighestBlockAt(loc).getY();
+                    loc.setY(safeY);
 
+                    if(loc.getWorld().getEnvironment().equals(World.Environment.NETHER) || loc.getWorld().getEnvironment().equals(World.Environment.THE_END)){
+                        player.sendMessage(ChatColor.RED + "For safety reasons, nether\nteleport is disabled.");
+                    }
 
-            // Confirm button
-            confirmPane.addItem(new GuiItem(confirmButton, confirmEvent -> {
-                confirmEvent.setCancelled(true);
-                confirmEvent.getWhoClicked().closeInventory();
+                    ess.getUser(player.getUniqueId()).getAsyncTeleport().teleport(
+                            loc,
+                            new Trade(BigDecimal.valueOf(teleportCost), ess),
+                            PlayerTeleportEvent.TeleportCause.PLUGIN,
+                            new CompletableFuture<Boolean>()
+                    );
 
-                if(nameCache.get(event.getWhoClicked().getName()).equals("")){
-                    setClaimName(claimID, "No name");
-                    confirmEvent.getWhoClicked().sendMessage(ChatColor.RED + "Warning: Name cannot contain special characters or be empty.");
-                } else{
-                    setClaimName(claimID, nameCache.get(event.getWhoClicked().getName()));
-                    confirmEvent.getWhoClicked().sendMessage(ChatColor.GREEN + "Claim renamed to: " + ChatColor.GRAY + nameCache.get(event.getWhoClicked().getName()));
-                }
-
-                nameCache.remove(event.getWhoClicked().getName());
-            }), 0, 0);
+                });
 
 
-            anvilGui.getFirstItemComponent().addPane(fillerPane);
-            anvilGui.getResultComponent().addPane(confirmPane);
-            anvilGui.show(player);
+            } else {
+                player.sendMessage(ChatColor.RED + "You do not have enough money to teleport.");
+            }
 
             event.setCancelled(true);
 
-            anvilGui.setOnNameInputChanged(s -> {
-                String cleanedString = s.replaceAll("[^\\x00-\\x7F]", "");
-                nameCache.put(event.getWhoClicked().getName(), cleanedString);
-            });
-
-        }), 4, 2 );
+        }), 2, 2 );
 
         gui.addPane(navigation);
         gui.show(player);

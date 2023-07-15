@@ -7,3 +7,5 @@ commands:
     description: Open the claims with all your claims
     aliases:
       - claim
+  eject:
+    description: Removes a player out of your claim

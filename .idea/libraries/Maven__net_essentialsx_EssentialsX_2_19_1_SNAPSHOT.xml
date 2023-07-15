@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: net.essentialsx:EssentialsX:2.19.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/net/essentialsx/EssentialsX/2.19.1-SNAPSHOT/EssentialsX-2.19.1-20211214.185129-49.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/net/essentialsx/EssentialsX/2.19.1-SNAPSHOT/EssentialsX-2.19.1-20211214.185129-49-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/net/essentialsx/EssentialsX/2.19.1-SNAPSHOT/EssentialsX-2.19.1-20211214.185129-49-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
