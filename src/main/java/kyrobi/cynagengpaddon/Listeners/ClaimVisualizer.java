@@ -30,7 +30,6 @@ public class ClaimVisualizer implements Listener {
 
     @EventHandler
     public void onClaimVisualize(ClaimInspectionEvent e){
-        e.getPlayer().sendMessage("INSPECTING");
 
         if(e.getClaims().isEmpty()){
             return;
@@ -62,7 +61,6 @@ public class ClaimVisualizer implements Listener {
                         }
 
                         counter++;
-                        System.out.println(counter);
                         if(counter >= 40){
                             visualQueue.remove(e.getPlayer().getName());
                             cancel();
@@ -72,7 +70,7 @@ public class ClaimVisualizer implements Listener {
         );
     }
 
-    public static void generateClaimOutline(Player player, Location corner1, Location corner2, double verticalSpacing, double boundarySpacing, int minHeight, int maxHeight) {
+    public void generateClaimOutline(Player player, Location corner1, Location corner2, double verticalSpacing, double boundarySpacing, int minHeight, int maxHeight) {
         World world = player.getWorld();
 
         double minX = Math.min(corner1.getX(), corner2.getX());
@@ -87,10 +85,12 @@ public class ClaimVisualizer implements Listener {
          */
 
         // Generate particles for the four corners
-        spawnParticle(world, player, minX, minY, minZ);
-        spawnParticle(world, player, minX, minY, maxZ);
-        spawnParticle(world, player, maxX, minY, minZ);
-        spawnParticle(world, player, maxX, minY, maxZ);
+        for (double y = minY; y <= maxHeight; y += verticalSpacing - 1) {
+            spawnParticleCorner(world, player, minX, y, minZ);
+            spawnParticleCorner(world, player, minX, y, maxZ);
+            spawnParticleCorner(world, player, maxX, y, minZ);
+            spawnParticleCorner(world, player, maxX, y, maxZ);
+        }
 
         // Generate additional vertical lines along the boundaries
         for (double y = Math.max(minY + verticalSpacing, minHeight); y <= Math.min(maxHeight, world.getMaxHeight()); y += verticalSpacing) {
@@ -108,10 +108,15 @@ public class ClaimVisualizer implements Listener {
         }
     }
 
-    private static void spawnParticle(World world, Player player, double x, double y, double z) {
+    private void spawnParticle(World world, Player player, double x, double y, double z) {
         Location particleLoc = new Location(world, x, y, z);
         // player.spawnParticle(Particle.SPELL_WITCH, particleLoc, 1, 0, 0, 0, 0); // Good particle
         player.spawnParticle(Particle.CLOUD, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
         // player.spawnParticle(Particle.REDSTONE, particleLoc, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.FUCHSIA, 2)); 22fps
+    }
+
+    private void spawnParticleCorner(World world, Player player, double x, double y, double z) {
+        Location particleLoc = new Location(world, x, y, z);
+        player.spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
     }
 }
