@@ -6,6 +6,7 @@ import me.ryanhamshire.GriefPrevention.events.ClaimInspectionEvent;
 import me.ryanhamshire.GriefPrevention.util.BoundingBox;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,8 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class ClaimVisualizer implements Listener {
 
@@ -39,6 +39,8 @@ public class ClaimVisualizer implements Listener {
             visualQueue.get(e.getPlayer().getName()).cancel();
         }
 
+        ArrayList<Claim> nearbyClaims = new ArrayList<>(e.getClaims());
+
         visualQueue.put(e.getPlayer().getName(),
                 new BukkitRunnable(){
                     int counter = 0;
@@ -48,7 +50,6 @@ public class ClaimVisualizer implements Listener {
                 /*
                 Get all the claims and loop through them
                  */
-                        ArrayList<Claim> nearbyClaims = new ArrayList<>(e.getClaims());
                         for(Claim i: nearbyClaims){
                             Location corner1 = i.getLesserBoundaryCorner();
                             Location corner2 = i.getGreaterBoundaryCorner();
@@ -61,6 +62,7 @@ public class ClaimVisualizer implements Listener {
                         }
 
                         counter++;
+
                         if(counter >= 40){
                             visualQueue.remove(e.getPlayer().getName());
                             cancel();
@@ -85,7 +87,7 @@ public class ClaimVisualizer implements Listener {
          */
 
         // Generate particles for the four corners
-        for (double y = minY; y <= maxHeight; y += verticalSpacing - 1) {
+        for (double y = minHeight; y <= maxHeight; y += (verticalSpacing +2)) {
             spawnParticleCorner(world, player, minX, y, minZ);
             spawnParticleCorner(world, player, minX, y, maxZ);
             spawnParticleCorner(world, player, maxX, y, minZ);
@@ -117,6 +119,9 @@ public class ClaimVisualizer implements Listener {
 
     private void spawnParticleCorner(World world, Player player, double x, double y, double z) {
         Location particleLoc = new Location(world, x, y, z);
-        player.spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
+        //player.spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
+
+        BlockData material = Material.BARRIER.createBlockData();
+        player.spawnParticle(Particle.BLOCK_MARKER, particleLoc, 1, 0, 0, 0, 0, material);
     }
 }
