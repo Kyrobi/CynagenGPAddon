@@ -54,9 +54,9 @@ public class ClaimVisualizer implements Listener {
                             Location corner1 = i.getLesserBoundaryCorner();
                             Location corner2 = i.getGreaterBoundaryCorner();
 
-                            int maxHeight = e.getPlayer().getLocation().getBlockY() + 30;
-                            int minHeight = e.getPlayer().getLocation().getBlockY() - 30;
-                            int spacing = 5;
+                            int maxHeight = e.getPlayer().getLocation().getBlockY() + 25;
+                            int minHeight = e.getPlayer().getLocation().getBlockY() - 10;
+                            int spacing = 6;
                             int boundarySpacing = 5;
                             generateClaimOutline(e.getPlayer(), corner1, corner2, spacing, boundarySpacing, minHeight, maxHeight);
                         }
@@ -87,7 +87,7 @@ public class ClaimVisualizer implements Listener {
          */
 
         // Generate particles for the four corners
-        for (double y = minHeight; y <= maxHeight; y += (verticalSpacing +2)) {
+        for (double y = minHeight; y <= maxHeight; y += (verticalSpacing )) {
             spawnParticleCorner(world, player, minX, y, minZ);
             spawnParticleCorner(world, player, minX, y, maxZ);
             spawnParticleCorner(world, player, maxX, y, minZ);
@@ -113,8 +113,9 @@ public class ClaimVisualizer implements Listener {
     private void spawnParticle(World world, Player player, double x, double y, double z) {
         Location particleLoc = new Location(world, x, y, z);
         // player.spawnParticle(Particle.SPELL_WITCH, particleLoc, 1, 0, 0, 0, 0); // Good particle
-        player.spawnParticle(Particle.CLOUD, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
+         player.spawnParticle(Particle.CLOUD, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
         // player.spawnParticle(Particle.REDSTONE, particleLoc, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.FUCHSIA, 2)); 22fps
+
     }
 
     private void spawnParticleCorner(World world, Player player, double x, double y, double z) {
