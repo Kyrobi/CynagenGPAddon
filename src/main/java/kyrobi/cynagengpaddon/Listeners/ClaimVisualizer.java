@@ -3,18 +3,24 @@ package kyrobi.cynagengpaddon.Listeners;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.events.ClaimInspectionEvent;
-import me.ryanhamshire.GriefPrevention.util.BoundingBox;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClaimVisualizer implements Listener {
 
@@ -41,6 +47,24 @@ public class ClaimVisualizer implements Listener {
 
         ArrayList<Claim> nearbyClaims = new ArrayList<>(e.getClaims());
 
+
+//        ArrayList<TextDisplay> textEntitiesList = new ArrayList<>();
+//        int tempCounter = 0;
+//        for(Claim i: nearbyClaims){
+//            System.out.println("Counter: " + tempCounter++);
+//            textEntitiesList.add(spawnTextEntity(i.getLesserBoundaryCorner().getWorld(), e.getPlayer()));
+//        }
+//
+//        AtomicInteger removeCounter = new AtomicInteger();
+//        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+//            for(TextDisplay i: textEntitiesList){
+//                System.out.println("Removing: " + removeCounter.getAndIncrement());
+//                i.remove();
+//            }
+//
+//        }, 20 * 20L);
+
+
         visualQueue.put(e.getPlayer().getName(),
                 new BukkitRunnable(){
                     int counter = 0;
@@ -50,6 +74,7 @@ public class ClaimVisualizer implements Listener {
                 /*
                 Get all the claims and loop through them
                  */
+
                         for(Claim i: nearbyClaims){
                             Location corner1 = i.getLesserBoundaryCorner();
                             Location corner2 = i.getGreaterBoundaryCorner();
@@ -59,6 +84,8 @@ public class ClaimVisualizer implements Listener {
                             int spacing = 6;
                             int boundarySpacing = 5;
                             generateClaimOutline(e.getPlayer(), corner1, corner2, spacing, boundarySpacing, minHeight, maxHeight);
+
+
                         }
 
                         counter++;
@@ -125,4 +152,75 @@ public class ClaimVisualizer implements Listener {
         BlockData material = Material.BARRIER.createBlockData();
         player.spawnParticle(Particle.BLOCK_MARKER, particleLoc, 1, 0, 0, 0, 0, material);
     }
+
+//    private TextDisplay spawnTextEntity(World world, Player playe){
+//
+//        // Get the corner locations
+//        int x1 = -140;
+//        int y1 = 85;
+//        int z1 = 729;
+//
+//        int x2 = -140;
+//        int y2 = 736;
+//        int z2 = 736;
+//
+//        int x3 = -140;
+//        int y3 = 79;
+//        int z3 = 729;
+//
+//        int x4 = -140;
+//        int y4 = 79;
+//        int z4 = 736;
+//
+//        Location corner1 = new Location(world, x1, y1, z1);
+//        Location corner2 = new Location(world, x2, y2, z2);
+//        Location corner3 = new Location(world, x3, y3, z3);
+//        Location corner4 = new Location(world, x4, y4, z4);
+//
+//        // Calculate center point
+//        //double centerX = (x1 + x2 + x3 + x4) / 4.0;
+//        //double centerY = (y1 + y2 + y3 + y4) / 4.0;
+//        //double centerZ = (z1 + z2 + z3 + z4) / 4.0;
+//
+//        // Spawn TextDisplay at center
+//        //TextDisplay text = (TextDisplay) world.spawnEntity(new Location(world, centerX, centerY, centerZ), EntityType.TEXT_DISPLAY);
+//        TextDisplay text = (TextDisplay) world.spawnEntity(new Location(world, x1, y1, z1), EntityType.TEXT_DISPLAY);
+//
+//        // Calculate width and height
+//        //double width = Math.max(Math.abs(x1 - x2), Math.abs(x3 - x4));
+//        //double height = Math.max(Math.abs(z1 - z3), Math.abs(z2 - z4));
+//        double width = 100;
+//        double height = 100;
+//
+//        // Get the normal vector of the wall
+//        Vector3f wallNormal = new Vector3f(0, 0, 1);
+//
+//// Create a rotation to align with the wall normal
+//        Quaternionf rotation = new Quaternionf().rotationTo(wallNormal, new Vector3f(0, 0, 1));
+//        Vector3f zeroTranslation = new Vector3f(0, 0, 0);
+//        Quaternionf identity = new Quaternionf(0, 0, 0, 1);
+//
+//// Create the transformation
+//        Transformation transform = new Transformation(
+//                zeroTranslation, // no translation
+//                rotation,
+//                new Vector3f(10, 10, 10), // no scaling
+//                identity // no final rotation
+//        );
+//
+//
+//        // Set size
+//        text.setTransformation(transform);
+//        text.text(Component.text("■").color(TextColor.color(255, 255, 0)));
+//        text.setGlowing(false);
+//
+//        // Center text
+//        text.setBillboard(Display.Billboard.FIXED);
+//        text.setDefaultBackground(false);
+//        text.setBackgroundColor(Color.fromARGB(0));
+//
+//        int opacityPercent = 20;
+//        text.setTextOpacity((byte)((opacityPercent / 100f) * 255));
+//        return text;
+//    }
 }

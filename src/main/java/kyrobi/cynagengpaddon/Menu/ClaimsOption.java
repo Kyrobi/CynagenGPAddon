@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
+import static kyrobi.cynagengpaddon.Menu.ClaimsMember.claimsMembersMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsRename.claimsRenamingMenu;
 import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
@@ -125,6 +126,22 @@ public class ClaimsOption {
             event.setCancelled(true);
 
         }), 2, 2 );
+
+
+
+        /*
+        View members option
+         */
+        ArrayList<String> membersButtonLore = new ArrayList<>();
+        membersButtonLore.add(ChatColor.GRAY + "Manage players in your claim");
+
+        ItemStack membersButton = Utils.itemGenerator(Material.PAPER, ChatColor.GREEN + "Members", membersButtonLore);
+        navigation.addItem(new GuiItem(membersButton, event -> {
+
+            claimsMembersMenu((Player) event.getWhoClicked(), claimID);
+            event.setCancelled(true);
+
+        }), 6, 2 );
 
         gui.addPane(navigation);
         gui.show(player);

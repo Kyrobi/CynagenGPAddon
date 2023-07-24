@@ -24,6 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
+import static kyrobi.cynagengpaddon.Utils.claimsDateCache;
+import static kyrobi.cynagengpaddon.Utils.getClaimDate;
 
 public class ClaimsList {
 
@@ -107,6 +109,8 @@ public class ClaimsList {
             lore.add(ChatColor.GRAY + "    x: " + ChatColor.WHITE + greaterX + ChatColor.GRAY + ", z: " + ChatColor.WHITE + greaterX);
             lore.add(ChatColor.GRAY + "▸ Area: " + ChatColor.WHITE + i.getArea() + ChatColor.GRAY + " blocks ");
             lore.add(ChatColor.GRAY + "    (" + ChatColor.WHITE + width + ChatColor.GRAY + "x" + ChatColor.WHITE + length + ChatColor.GRAY + ")");
+            lore.add(ChatColor.GRAY + "▸ Creation date: ");
+            lore.add(ChatColor.WHITE + "    " + getClaimDate(i.getID()));
             itemMeta.setLore(lore);
 
             itemStack.setItemMeta(itemMeta);
@@ -138,6 +142,7 @@ public class ClaimsList {
             //event.getWhoClicked().sendMessage(cleanedUpString);
 
             claimsOptionMenu((Player) event.getWhoClicked(), Long.parseLong(cleanedUpString));
+
         });
 
         gui.addPane(pages);

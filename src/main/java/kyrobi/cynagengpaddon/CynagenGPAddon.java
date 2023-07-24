@@ -1,5 +1,6 @@
 package kyrobi.cynagengpaddon;
 
+import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
 import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
@@ -12,33 +13,50 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import static kyrobi.cynagengpaddon.Utils.readClaimsIntoMemory;
-import static kyrobi.cynagengpaddon.Utils.writeClaimsToDisk;
+import static kyrobi.cynagengpaddon.Utils.*;
 
 public final class CynagenGPAddon extends JavaPlugin {
 
     public static CynagenGPAddon plugin;
 
     static File dbFile = new File("");
-    public static String folderDirectory = String.valueOf(
-            new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "data.json"));
+    public static String claimNamesFile = String.valueOf(
+            new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json"));
+
+    public static String claimDatesFile = String.valueOf(
+            new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "dates.json"));
 
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
         readClaimsIntoMemory();
+        readDatesIntoMemory();
 
         plugin = this;
 
-        File yourFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "data.json");
-        if(!yourFile.exists()){
+        File nameFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json");
+        if(!nameFile.exists()){
             try {
-                yourFile.createNewFile(); // if file already exists will do nothing
+                nameFile.createNewFile(); // if file already exists will do nothing
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             try {
-                FileOutputStream oFile = new FileOutputStream(yourFile, false);
+                FileOutputStream oFile = new FileOutputStream(nameFile, false);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        File dateFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "dates.json");
+        if(!dateFile.exists()){
+            try {
+                dateFile.createNewFile(); // if file already exists will do nothing
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                FileOutputStream oFile = new FileOutputStream(dateFile, false);
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -47,6 +65,7 @@ public final class CynagenGPAddon extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("CynagenGPAddon");
 
         new ClaimVisualizer(this);
+        new ClaimCreate(this);
 
         this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
         this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
@@ -55,5 +74,6 @@ public final class CynagenGPAddon extends JavaPlugin {
     @Override
     public void onDisable() {
         writeClaimsToDisk();
+        writeDatesToDisk();
     }
 }
