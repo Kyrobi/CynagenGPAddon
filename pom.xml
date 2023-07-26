@@ -91,6 +91,14 @@
             <id>essentials-snapshots</id>
             <url>https://repo.essentialsx.net/snapshots/</url>
         </repository>
+        <repository>
+            <id>minecraft-repo</id>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
+        <repository>
+            <id>hpa</id>
+            <url>https://maven.pkg.github.com/CC007/HeadsPluginAPI</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -121,6 +129,12 @@
             <groupId>net.essentialsx</groupId>
             <artifactId>EssentialsXSpawn</artifactId>
             <version>2.19.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.CC007</groupId>
+            <artifactId>headsplugin-api</artifactId>
+            <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

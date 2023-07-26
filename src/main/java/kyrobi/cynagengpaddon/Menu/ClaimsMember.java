@@ -1,33 +1,21 @@
 package kyrobi.cynagengpaddon.Menu;
 
-import com.earth2me.essentials.Trade;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
-import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
-import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
-import static kyrobi.cynagengpaddon.Menu.ClaimsRename.claimsRenamingMenu;
+import static kyrobi.cynagengpaddon.Menu.ClaimsTrust.showClaimManagers;
 
 public class ClaimsMember {
 
@@ -40,7 +28,6 @@ public class ClaimsMember {
             return;
         }
 
-        List<String> trusted = new ArrayList<>();
 
         ArrayList<String> builders = new ArrayList<>();
         ArrayList<String> containers = new ArrayList<>();
@@ -49,11 +36,6 @@ public class ClaimsMember {
 
 
         claim.getPermissions(builders, containers, accessors, managers);
-
-        trusted.addAll(builders);
-        trusted.addAll(containers);
-        trusted.addAll(accessors);
-        trusted.addAll(managers);
 
 
 
@@ -83,16 +65,6 @@ public class ClaimsMember {
 
 
 
-
-
-
-
-
-
-
-
-
-
         /*
         Managers
          */
@@ -110,7 +82,7 @@ public class ClaimsMember {
         ItemStack managerButton = Utils.itemGenerator(Material.COMPARATOR, ChatColor.GREEN + "Managers", managerButtonLore);
         navigation.addItem(new GuiItem(managerButton, event -> {
             event.setCancelled(true);
-
+            showClaimManagers(managers, player, ClaimsTrust.TRUST_TYPE.MANAGER ,claimID);
         }), 4, 2 );
 
         /*
@@ -125,7 +97,7 @@ public class ClaimsMember {
         ItemStack builderButton = Utils.itemGenerator(Material.CRAFTING_TABLE, ChatColor.GREEN + "Builders", builderButtonLore);
         navigation.addItem(new GuiItem(builderButton, event -> {
             event.setCancelled(true);
-
+            showClaimManagers(builders, player, ClaimsTrust.TRUST_TYPE.BUILDER ,claimID);
         }), 2, 3 );
 
 
@@ -143,7 +115,7 @@ public class ClaimsMember {
         ItemStack containerButton = Utils.itemGenerator(Material.CHEST, ChatColor.GREEN + "Containers", containerButtonLore);
         navigation.addItem(new GuiItem(containerButton, event -> {
             event.setCancelled(true);
-
+            showClaimManagers(containers, player, ClaimsTrust.TRUST_TYPE.CONTAINER ,claimID);
         }), 4, 3 );
 
 
@@ -159,7 +131,7 @@ public class ClaimsMember {
         ItemStack accessButton = Utils.itemGenerator(Material.RED_BED, ChatColor.GREEN + "Accessors", accessButtonLore);
         navigation.addItem(new GuiItem(accessButton, event -> {
             event.setCancelled(true);
-
+            showClaimManagers(accessors, player, ClaimsTrust.TRUST_TYPE.ACCESSOR ,claimID);
         }), 6, 3 );
 
 

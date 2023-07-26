@@ -15,7 +15,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -111,6 +113,17 @@ public class ClaimsList {
             lore.add(ChatColor.GRAY + "    (" + ChatColor.WHITE + width + ChatColor.GRAY + "x" + ChatColor.WHITE + length + ChatColor.GRAY + ")");
             lore.add(ChatColor.GRAY + "▸ Creation date: ");
             lore.add(ChatColor.WHITE + "    " + getClaimDate(i.getID()));
+
+            /*
+            Enchant the block if the player is standing inside that claim to make it easier to see
+             */
+            Claim claimAtPlayer = GriefPrevention.instance.dataStore.getClaim(i.getID());
+            if(claimAtPlayer.contains(player.getLocation(), true, false)){
+                itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                lore.add("");
+                lore.add(ChatColor.GREEN + "You are currently in this claim");
+            }
             itemMeta.setLore(lore);
 
             itemStack.setItemMeta(itemMeta);
@@ -134,6 +147,10 @@ public class ClaimsList {
         pages.populateWithItemStacks(allClaims);
         pages.setOnClick(event -> {
             long claimID = 0;
+
+            if(event.getCurrentItem() == null){
+                return;
+            }
 
             String itemLoreFirstLine = event.getCurrentItem().getItemMeta().getLore().get(0);
             // System.out.println("Uncleaned: " + itemLoreFirstLine);

@@ -98,19 +98,31 @@ public class ClaimsOption {
 
             if(ess.getUser(player.getUniqueId()).getMoney().intValue() >= teleportCost){
                 Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-                Location loc = claim.getGreaterBoundaryCorner();
+
+                Location lesserCorner = claim.getLesserBoundaryCorner();
+                Location greaterCorner = claim.getGreaterBoundaryCorner();
+
+                int lesserX = lesserCorner.getBlockX();
+                int lesserZ = lesserCorner.getBlockZ();
+                int greaterX = greaterCorner.getBlockX();
+                int greaterZ = greaterCorner.getBlockZ();
+
+                int middleX = (lesserX + greaterX) / 2;
+                int middleZ = (lesserZ + greaterZ) / 2;
+
+                Location teleportLoc = new Location(lesserCorner.getWorld(), middleX, 90, middleZ);
 
                 Bukkit.getScheduler().runTaskAsynchronously(CynagenGPAddon.plugin, () -> {
                     // Didn't know you could do .getHighestBlock async, but gg
-                    int safeY = loc.getWorld().getHighestBlockAt(loc).getY();
-                    loc.setY(safeY);
+                    int safeY = greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getY();
+                    teleportLoc.setY(safeY);
 
-                    if(loc.getWorld().getEnvironment().equals(World.Environment.NETHER) || loc.getWorld().getEnvironment().equals(World.Environment.THE_END)){
+                    if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.NETHER) || greaterCorner.getWorld().getEnvironment().equals(World.Environment.THE_END)){
                         player.sendMessage(ChatColor.RED + "For safety reasons, nether\nteleport is disabled.");
                     }
 
                     ess.getUser(player.getUniqueId()).getAsyncTeleport().teleport(
-                            loc,
+                            teleportLoc,
                             new Trade(BigDecimal.valueOf(teleportCost), ess),
                             PlayerTeleportEvent.TeleportCause.PLUGIN,
                             new CompletableFuture<Boolean>()
@@ -135,7 +147,7 @@ public class ClaimsOption {
         ArrayList<String> membersButtonLore = new ArrayList<>();
         membersButtonLore.add(ChatColor.GRAY + "Manage players in your claim");
 
-        ItemStack membersButton = Utils.itemGenerator(Material.PAPER, ChatColor.GREEN + "Members", membersButtonLore);
+        ItemStack membersButton = Utils.itemGenerator(Material.PLAYER_HEAD, ChatColor.GREEN + "Members", membersButtonLore);
         navigation.addItem(new GuiItem(membersButton, event -> {
 
             claimsMembersMenu((Player) event.getWhoClicked(), claimID);

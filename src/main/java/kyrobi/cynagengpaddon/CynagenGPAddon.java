@@ -5,6 +5,7 @@ import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,7 +34,6 @@ public final class CynagenGPAddon extends JavaPlugin {
         readDatesIntoMemory();
 
         plugin = this;
-
         File nameFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json");
         if(!nameFile.exists()){
             try {
