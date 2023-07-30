@@ -1,4 +1,4 @@
-package kyrobi.cynagengpaddon.Menu;
+package kyrobi.cynagengpaddon.Menu.ClaimOptions;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui;

@@ -1,4 +1,4 @@
-package kyrobi.cynagengpaddon.Menu;
+package kyrobi.cynagengpaddon.Menu.ClaimOptions;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
@@ -10,7 +10,6 @@ import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,15 +17,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static kyrobi.cynagengpaddon.Menu.ClaimsMember.claimsMembersMenu;
+import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembersMenu;
 
 public class ClaimsTrust {
 
-    enum TRUST_TYPE {
+    public enum TRUST_TYPE {
         MANAGER,
         BUILDER,
         CONTAINER,
@@ -89,6 +87,7 @@ public class ClaimsTrust {
             GriefPrevention.instance.dataStore.saveClaim(claim);
             trusts.remove(playerToRemoveString);
             showClaimManagers(trusts, player, trust_type, claimID);
+
 
         });
 

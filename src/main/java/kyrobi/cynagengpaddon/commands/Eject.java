@@ -33,16 +33,26 @@ public class Eject implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args) {
+        Player player = (Player) commandSender;
         if (!(commandSender instanceof Player)) {
             commandSender.sendMessage("This command can only be executed by a player.");
             return true;
         }
 
-        Player player = (Player) commandSender;
-        Player target = Bukkit.getPlayer(args[0]);
+        if(args.length == 0){
+            player.sendMessage(ChatColor.RED + "Usage: /eject <player>");
+        }
+
+        Player target = Bukkit.getPlayerExact(args[0]);
+
 
         if(target == null){
-            player.sendMessage(ChatColor.RED + "The player you are trying to eject does not exist.");
+            player.sendMessage(ChatColor.RED + "The player you are trying to eject is not online.");
+            return false;
+        }
+
+        if(target.hasPermission("mod.perks")){
+            player.sendMessage(ChatColor.RED + "You cannot eject a staff.");
             return false;
         }
 

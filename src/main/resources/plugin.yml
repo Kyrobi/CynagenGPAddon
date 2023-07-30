@@ -6,6 +6,6 @@ commands:
   claims:
     description: Open the claims with all your claims
     aliases:
-      - claim
+      - claim_test
   eject:
     description: Removes a player out of your claim

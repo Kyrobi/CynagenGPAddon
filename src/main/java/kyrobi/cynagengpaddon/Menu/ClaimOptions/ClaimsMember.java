@@ -1,4 +1,4 @@
-package kyrobi.cynagengpaddon.Menu;
+package kyrobi.cynagengpaddon.Menu.ClaimOptions;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
-import static kyrobi.cynagengpaddon.Menu.ClaimsTrust.showClaimManagers;
+import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsTrust.showClaimManagers;
 
 public class ClaimsMember {
 

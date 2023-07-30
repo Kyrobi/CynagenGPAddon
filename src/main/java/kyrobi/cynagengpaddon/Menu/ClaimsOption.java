@@ -3,42 +3,30 @@ package kyrobi.cynagengpaddon.Menu;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.Trade;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
-import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
-import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import it.unimi.dsi.fastutil.chars.CharObjectImmutablePair;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.slf4j.helpers.Util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
-import static kyrobi.cynagengpaddon.Menu.ClaimsMember.claimsMembersMenu;
-import static kyrobi.cynagengpaddon.Menu.ClaimsRename.claimsRenamingMenu;
-import static kyrobi.cynagengpaddon.Utils.setClaimName;
+import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembersMenu;
+import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
 
 public class ClaimsOption {
+    static int normalTeleportPrice = 800;
 
     public static void claimsOptionMenu(Player player, long claimID){
 
@@ -47,9 +35,11 @@ public class ClaimsOption {
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
         ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
+
         background.addItem(new GuiItem(borderBlock, inventoryClickEvent -> {
             inventoryClickEvent.setCancelled(true);
         }));
+
         background.setRepeat(true);
         background.setPriority(Pane.Priority.LOWEST);
 
@@ -84,15 +74,8 @@ public class ClaimsOption {
         /*
         Teleport option
          */
-        int teleportCost = 800;
-        ArrayList<String> teleportButtonLore = new ArrayList<>();
-        teleportButtonLore.add(ChatColor.GRAY + "▸ Cost: " + ChatColor.GREEN + "$" + teleportCost);
-        teleportButtonLore.add(" ");
-        teleportButtonLore.add(ChatColor.GRAY + "Click to teleport to");
-        teleportButtonLore.add(ChatColor.GRAY + "your claim.");
-        teleportButtonLore.add(" ");
-        teleportButtonLore.add(ChatColor.GRAY + "(Not meant as replacement for");
-        teleportButtonLore.add(ChatColor.GRAY + "/home, hence the cost.)");
+        int teleportCost = getTeleportCost(player);
+        ArrayList<String> teleportButtonLore = getTeleportDiscountLore(player);
         ItemStack teleportButton = Utils.itemGenerator(Material.ENDER_PEARL, ChatColor.GREEN + "Teleport", teleportButtonLore);
         navigation.addItem(new GuiItem(teleportButton, event -> {
 
@@ -125,7 +108,7 @@ public class ClaimsOption {
                             teleportLoc,
                             new Trade(BigDecimal.valueOf(teleportCost), ess),
                             PlayerTeleportEvent.TeleportCause.PLUGIN,
-                            new CompletableFuture<Boolean>()
+                            new CompletableFuture<>()
                     );
 
                 });
@@ -155,9 +138,86 @@ public class ClaimsOption {
 
         }), 6, 2 );
 
+
+        /*
+        Flags option
+         */
+        ArrayList<String> flagsButtonLore = new ArrayList<>();
+        flagsButtonLore.add(ChatColor.GRAY + "▸ Flags are optional settings that");
+        flagsButtonLore.add(ChatColor.GRAY + "▸ modify how a claim works. It lets");
+        flagsButtonLore.add(ChatColor.GRAY + "▸ you customize claims by setting");
+        flagsButtonLore.add(ChatColor.GRAY + "▸ extra options such as allowing PvP");
+        flagsButtonLore.add(ChatColor.GRAY + "▸ or welcome messages.");
+        ItemStack flagsButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Flags", flagsButtonLore);
+        navigation.addItem(new GuiItem(flagsButton, event -> {
+
+            showClaimFlags((Player) event.getWhoClicked(), claimID);
+            event.setCancelled(true);
+
+        }), 4, 3 );
+
         gui.addPane(navigation);
         gui.show(player);
 
+    }
 
+    private static int getTeleportCost(Player player){
+        double VIPPlusDiscountPercentage = 0.2;
+        double boosterDiscountPercentage = 0.4;
+        double teleportDiscountPackagePercentage = 0.6;
+        double teleportAndBoosterDiscountPackagePercentage = 0.75;
+
+        if(player.hasPermission("perks.claimTeleportDiscount") && (player.hasPermission("booster.perks"))){
+            return (int) (normalTeleportPrice * (1 - teleportAndBoosterDiscountPackagePercentage));
+        }
+
+        else if(player.hasPermission("claimTeleportDiscount")){
+            return (int) (normalTeleportPrice * (1 - teleportDiscountPackagePercentage));
+        }
+
+        else if(player.hasPermission("booster.perks")){
+            return (int) (normalTeleportPrice * (1 - boosterDiscountPercentage));
+        }
+
+        else if(player.hasPermission("vipplus.perks")){
+            return (int) (normalTeleportPrice * (1 - VIPPlusDiscountPercentage));
+        }
+
+
+        return normalTeleportPrice;
+    }
+
+    private static ArrayList<String> getTeleportDiscountLore(Player player){
+        ArrayList<String> teleportButtonLore = new ArrayList<>();
+        teleportButtonLore.add(ChatColor.GRAY + "Cost: " + ChatColor.GREEN + "$" + normalTeleportPrice +" " + ChatColor.GRAY + "(0% VIP+ Discount)");
+        teleportButtonLore.add(" ");
+        teleportButtonLore.add(ChatColor.GRAY + "▸ Click to teleport to");
+        teleportButtonLore.add(ChatColor.GRAY + "▸ your claim.");
+        teleportButtonLore.add(" ");
+        teleportButtonLore.add(ChatColor.GRAY + "(Not meant as replacement for");
+        teleportButtonLore.add(ChatColor.GRAY + "/home, hence the cost.)");
+
+        if(player.hasPermission("vipplus.perks") || player.hasPermission("booster.perks") || player.hasPermission("claimTeleportDiscount")){
+            teleportButtonLore.set(0,
+                    ChatColor.GRAY + "▸ Cost: " + ChatColor.RED + ChatColor.STRIKETHROUGH + "$" + normalTeleportPrice + ChatColor.RESET + ChatColor.GREEN + " $" + getTeleportCost(player));
+        }
+
+        if(player.hasPermission("perks.claimTeleportDiscount") && player.hasPermission("booster.perks")){
+            teleportButtonLore.set(1, teleportButtonLore.get(1) + " " + ChatColor.GRAY + "(75% Teleport + Booster Discount)");
+        }
+
+        else if(player.hasPermission("perks.claimTeleportDiscount")){
+            teleportButtonLore.set(0, teleportButtonLore.get(0) + " " + ChatColor.GRAY + "(60% Teleport Discount)");
+        }
+
+        else if(player.hasPermission("booster.perks")){
+            teleportButtonLore.set(0, teleportButtonLore.get(0) + " " + ChatColor.GRAY + "(40% Booster Discount)");
+        }
+
+        else if(player.hasPermission("vipplus.perks")){
+            teleportButtonLore.set(0, teleportButtonLore.get(0) + " " + ChatColor.GRAY + "(20% VIP+ Discount)");
+        }
+
+        return teleportButtonLore;
     }
 }
