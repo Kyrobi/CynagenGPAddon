@@ -2,6 +2,7 @@ package kyrobi.cynagengpaddon;
 
 import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
 import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
+import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
 import org.bukkit.Bukkit;
@@ -33,7 +34,6 @@ public final class CynagenGPAddon extends JavaPlugin {
         readClaimsIntoMemory();
         readDatesIntoMemory();
 
-        plugin = this;
         File nameFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json");
         if(!nameFile.exists()){
             try {
@@ -64,11 +64,14 @@ public final class CynagenGPAddon extends JavaPlugin {
 
         Bukkit.getConsoleSender().sendMessage("CynagenGPAddon");
 
-        new ClaimVisualizer(this);
-        new ClaimCreate(this);
+         new ClaimVisualizer(this);
+         new ClaimCreate(this);
 
-        this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
-        this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
+
+         new ClaimMessage(this);
+
+         this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
+         this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
     }
 
     @Override

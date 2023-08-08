@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembersMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
+import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage.showClaimMessageMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter.claimsNoPlayerEnterOption;
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
@@ -126,6 +127,24 @@ public class ClaimsFlags {
             claimsNoPlayerEnterOption((Player) event.getWhoClicked(), event ,claimID);
 
         }), 4, 2 );
+
+
+        /*
+        Claims Message
+         */
+//        ArrayList<String> claimsMessageButtonLore = new ArrayList<>();
+//        claimsMessageButtonLore.add(ChatColor.GRAY + "Set enter and leave message");
+        ItemStack claimsMessageButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Set enter and leave message");
+        navigation.addItem(new GuiItem(claimsMessageButton, event -> {
+            event.setCancelled(true);
+            if(player.hasPermission("vipplus.perks")){
+                showClaimMessageMenu((Player) event.getWhoClicked() ,claimID);
+            } else {
+                player.sendMessage(ChatColor.RED + "You need " + ChatColor.DARK_AQUA + ChatColor.BOLD + "VIP+ " + ChatColor.RESET +
+                        ChatColor.RED + "to use this option.");
+            }
+
+        }), 6, 2 );
 
 
 //        /*

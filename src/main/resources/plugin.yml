@@ -2,6 +2,9 @@ name: CynagenGPAddon
 version: '${project.version}'
 main: kyrobi.cynagengpaddon.CynagenGPAddon
 api-version: '1.19'
+depend:
+  - GriefPrevention
+  - GPFlags
 commands:
   claims:
     description: Open the claims with all your claims
