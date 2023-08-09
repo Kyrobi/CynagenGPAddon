@@ -28,6 +28,8 @@ public class ClaimVisualizer implements Listener {
 
     private static final long DISPLAY_TIME = 5 * 20L; // Display time in ticks (1 second = 20 ticks)
     HashMap<String, BukkitTask> visualQueue = new HashMap<>();
+    static Set<String> claimTooLargeWarning = new HashSet<>();
+    static int maxClaimSize = 1_000;
 
     public ClaimVisualizer(CynagenGPAddon plugin){
         this.plugin = plugin;
@@ -79,12 +81,25 @@ public class ClaimVisualizer implements Listener {
                             Location corner1 = i.getLesserBoundaryCorner();
                             Location corner2 = i.getGreaterBoundaryCorner();
 
-                            int maxHeight = e.getPlayer().getLocation().getBlockY() + 25;
-                            int minHeight = e.getPlayer().getLocation().getBlockY() - 10;
-                            int spacing = 6;
-                            int boundarySpacing = 5;
-                            generateClaimOutline(e.getPlayer(), corner1, corner2, spacing, boundarySpacing, minHeight, maxHeight);
+                            /*
+                            Clamp down on claims that are too big
+                             */
+                            int xSize = Math.abs(corner2.getBlockX() - corner1.getBlockX()) + 1;
+                            int zSize = Math.abs(corner2.getBlockZ() - corner1.getBlockZ()) + 1;
 
+                            // Check if claim size exceeds the limit
+                            if (xSize <= maxClaimSize && zSize <= maxClaimSize) {
+                                int maxHeight = e.getPlayer().getLocation().getBlockY() + 25;
+                                int minHeight = e.getPlayer().getLocation().getBlockY() - 10;
+                                int spacing = 6;
+                                int boundarySpacing = 5;
+                                generateClaimOutline(e.getPlayer(), corner1, corner2, spacing, boundarySpacing, minHeight, maxHeight);
+                            } else {
+                                if(!claimTooLargeWarning.contains(e.getPlayer().getName())){
+                                    e.getPlayer().sendMessage(ChatColor.RED + "There is a claim that is too large to visualize. Not showing particles.");
+                                    claimTooLargeWarning.add(e.getPlayer().getName());
+                                }
+                            }
 
                         }
 
@@ -92,6 +107,7 @@ public class ClaimVisualizer implements Listener {
 
                         if(counter >= 40){
                             visualQueue.remove(e.getPlayer().getName());
+                            claimTooLargeWarning.remove(e.getPlayer().getName());
                             cancel();
                         }
                     }

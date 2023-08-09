@@ -27,7 +27,7 @@ import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembers
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
 
 public class ClaimsOption {
-    static int normalTeleportPrice = 800;
+    static int normalTeleportPrice = 10;
 
     public static void claimsOptionMenu(Player player, long claimID){
 

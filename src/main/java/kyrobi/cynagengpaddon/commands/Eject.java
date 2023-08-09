@@ -41,6 +41,7 @@ public class Eject implements CommandExecutor {
 
         if(args.length == 0){
             player.sendMessage(ChatColor.RED + "Usage: /eject <player>");
+            return false;
         }
 
         Player target = Bukkit.getPlayerExact(args[0]);
