@@ -104,6 +104,7 @@ public class ClaimsOption {
 
                     if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.NETHER) || greaterCorner.getWorld().getEnvironment().equals(World.Environment.THE_END)){
                         player.sendMessage(ChatColor.RED + "For safety reasons, nether\nteleport is disabled.");
+                        return;
                     }
 
                     ess.getUser(player.getUniqueId()).getAsyncTeleport().teleport(

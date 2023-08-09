@@ -79,7 +79,7 @@ public class ClaimsTrust {
                 return;
             }
 
-            Player playerToRemove = Bukkit.getOfflinePlayer(e.getCurrentItem().getItemMeta().getLore().get(0)).getPlayer();
+            OfflinePlayer playerToRemove = Bukkit.getOfflinePlayer(e.getCurrentItem().getItemMeta().getLore().get(0));
             Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
             String playerToRemoveString = playerToRemove.getUniqueId().toString();
             claim.setPermission(playerToRemoveString, ClaimPermission.Inventory);
