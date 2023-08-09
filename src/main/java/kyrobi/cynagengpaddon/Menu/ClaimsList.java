@@ -24,14 +24,20 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
-import static kyrobi.cynagengpaddon.Utils.claimsDateCache;
-import static kyrobi.cynagengpaddon.Utils.getClaimDate;
+import static kyrobi.cynagengpaddon.Utils.*;
+import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 
 public class ClaimsList {
 
-    public static void claimsListMenu(Player player){
+    public enum Sort {
+        CLAIM_ID,
+        ALPHABETICAL
+    }
+
+    public static void claimsListMenu(Player player, Sort sort_type){
         // We grab all the claims of the player
         List<Claim> playerClaims = new ArrayList<>();
         PlayerData playerData = null;
@@ -47,16 +53,33 @@ public class ClaimsList {
 
 
         // Sort the claims in the array by their ID
-        playerClaims.sort(new Comparator<Claim>(){
+        if(sort_type == Sort.CLAIM_ID){
+            playerClaims.sort(new Comparator<Claim>(){
 
-            @Override
-            public int compare(Claim a, Claim b){
-                int first = a.getID().intValue();
-                int second = b.getID().intValue();
+                @Override
+                public int compare(Claim a, Claim b){
+                    int first = a.getID().intValue();
+                    int second = b.getID().intValue();
 
-                return Integer.compare(first, second);
+                    return Integer.compare(first, second);
+                }
+            });
+        }
+        else if(sort_type == Sort.ALPHABETICAL){
+            TreeMap<String, Claim> sortedClaims = new TreeMap<>();
+            for(Claim i: playerData.getClaims()){
+                sortedClaims.put(getClaimName(i.getID()), i);
             }
-        });
+
+            playerClaims.clear();
+            playerClaims.addAll(sortedClaims.values());
+
+//            // Iterate through the key-value pairs (already in sorted order)
+//            for (String key : sortedClaims.keySet()) {
+//                playerClaims.add(sortedClaims.get(key));
+//            }
+        }
+
 
         // Loop through each claim and add it to the GUI
         List<ItemStack> allClaims = new ArrayList<>();
@@ -198,6 +221,13 @@ public class ClaimsList {
             }
         }), 8, 0);
 
+        ItemStack sortButton = getSortButton(player);
+        navigation.addItem(new GuiItem(sortButton, event -> {
+            event.setCancelled(true);
+            changeSortType(player);
+            claimsListMenu(player, userSortType.get(player.getName()));
+        }), 7, 0);
+
         long totalClaimBlocksUsed = 0;
 
         for(Claim i: playerClaims){
@@ -221,5 +251,38 @@ public class ClaimsList {
 
         gui.addPane(navigation);
         gui.show(player);
+    }
+
+    public static ItemStack getSortButton(Player player){
+        Sort sort_type = userSortType.getOrDefault(player.getName(), Sort.CLAIM_ID);
+
+        ArrayList<String> sortButtonLore = new ArrayList<>();
+        sortButtonLore.add(ChatColor.GRAY + "Currently sorted by");
+        sortButtonLore.add(" ");
+
+        if(sort_type == Sort.CLAIM_ID){
+            sortButtonLore.add(ChatColor.GOLD + "" +ChatColor.BOLD + "▸ Claim ID");
+            sortButtonLore.add(ChatColor.GRAY + "  Alphabetical");
+        }
+        else if(sort_type == Sort.ALPHABETICAL){
+            sortButtonLore.add(ChatColor.GRAY + "  Claim ID");
+            sortButtonLore.add(ChatColor.GOLD + "" +ChatColor.BOLD + "▸ Alphabetical");
+        }
+
+        return Utils.itemGenerator(Material.HOPPER, ChatColor.GRAY + "Sort", sortButtonLore);
+    }
+
+    public static void changeSortType(Player player){
+        String name = player.getName();
+        if(!userSortType.containsKey(player.getName())){
+            userSortType.put(name, Sort.CLAIM_ID);
+        }
+
+        Sort type = userSortType.get(name);
+        if(type == Sort.CLAIM_ID){
+            userSortType.put(name, Sort.ALPHABETICAL);
+        } else if(type == Sort.ALPHABETICAL){
+            userSortType.put(name, Sort.CLAIM_ID);
+        }
     }
 }

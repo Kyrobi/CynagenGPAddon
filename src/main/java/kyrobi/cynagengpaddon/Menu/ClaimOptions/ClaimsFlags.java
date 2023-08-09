@@ -35,7 +35,6 @@ import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembers
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage.showClaimMessageMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter.claimsNoPlayerEnterOption;
-import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
 
 public class ClaimsFlags {

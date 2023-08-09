@@ -25,6 +25,7 @@ import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembersMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
+import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 
 public class ClaimsOption {
     static int normalTeleportPrice = 10;
@@ -53,7 +54,7 @@ public class ClaimsOption {
         navigation.addItem(new GuiItem(backButton, event -> {
                 // event.getWhoClicked().closeInventory();
             event.setCancelled(true);
-            claimsListMenu((Player) event.getWhoClicked());
+            claimsListMenu((Player) event.getWhoClicked(), userSortType.get(player.getName()));
 
         }), 4, 5 ); // Indexed 4 to the right, Index 5 down
 
