@@ -20,6 +20,8 @@ public class ClaimsRename {
 
     public static void claimsRenamingMenu(Player player, InventoryClickEvent invClick, long claimID){
 
+        invClick.setCancelled(true);
+
         AnvilGui anvilGui = new AnvilGui("Type in a name");
         anvilGui.setCost((short)0);
         anvilGui.setOnGlobalClick(inventoryClickEvent -> invClick.setCancelled(true));
@@ -64,8 +66,6 @@ public class ClaimsRename {
         anvilGui.getFirstItemComponent().addPane(fillerPane);
         anvilGui.getResultComponent().addPane(confirmPane);
         anvilGui.show(player);
-
-        invClick.setCancelled(true);
 
         anvilGui.setOnNameInputChanged(s -> {
             String cleanedString = s.replaceAll("[^\\x00-\\x7F]", "");

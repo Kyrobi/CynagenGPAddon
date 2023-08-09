@@ -146,6 +146,7 @@ public class ClaimsList {
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 5);
         pages.populateWithItemStacks(allClaims);
         pages.setOnClick(event -> {
+            event.setCancelled(true);
             long claimID = 0;
 
             if(event.getCurrentItem() == null){
@@ -178,23 +179,23 @@ public class ClaimsList {
 
         ItemStack backButton = Utils.itemGenerator(Material.ARROW, ChatColor.GRAY + "Previous Page");
         navigation.addItem(new GuiItem(backButton, event -> {
+            event.setCancelled(true);
             if (pages.getPage() > 0) {
                 pages.setPage(pages.getPage() - 1);
 
                 gui.update();
             }
-            event.setCancelled(true);
         }), 0, 0);
 
 
         ItemStack nextButton = Utils.itemGenerator(Material.ARROW, ChatColor.GRAY + "Next Page");
         navigation.addItem(new GuiItem(nextButton, event -> {
+            event.setCancelled(true);
             if (pages.getPage() < pages.getPages() - 1) {
                 pages.setPage(pages.getPage() + 1);
 
                 gui.update();
             }
-            event.setCancelled(true);
         }), 8, 0);
 
         long totalClaimBlocksUsed = 0;
@@ -214,6 +215,7 @@ public class ClaimsList {
         exitButtonLore.add(ChatColor.GRAY + "▸ Total: " + ChatColor.WHITE + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks()));
         ItemStack exitButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED+"Exit", exitButtonLore);
         navigation.addItem(new GuiItem(exitButton, event ->
+
                 event.getWhoClicked().closeInventory()), 4, 0
         );
 

@@ -57,10 +57,10 @@ public class ClaimsMember {
 
         ItemStack backButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "Back");
         navigation.addItem(new GuiItem(backButton, event -> {
+            event.setCancelled(true);
             // event.getWhoClicked().closeInventory();
             claimsOptionMenu((Player) event.getWhoClicked(), claimID);
 
-            event.setCancelled(true);
         }), 4, 5 ); // Indexed 4 to the right, Index 5 down
 
 

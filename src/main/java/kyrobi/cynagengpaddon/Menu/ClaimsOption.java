@@ -15,6 +15,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -51,9 +52,9 @@ public class ClaimsOption {
         ItemStack backButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "Back");
         navigation.addItem(new GuiItem(backButton, event -> {
                 // event.getWhoClicked().closeInventory();
+            event.setCancelled(true);
             claimsListMenu((Player) event.getWhoClicked());
 
-                event.setCancelled(true);
         }), 4, 5 ); // Indexed 4 to the right, Index 5 down
 
 
@@ -66,8 +67,8 @@ public class ClaimsOption {
         ItemStack renameButton = Utils.itemGenerator(Material.NAME_TAG, ChatColor.GREEN + "Rename", renameButtonLore);
         navigation.addItem(new GuiItem(renameButton, event -> {
 
-            claimsRenamingMenu((Player) event.getWhoClicked(), event, claimID);
             event.setCancelled(true);
+            claimsRenamingMenu((Player) event.getWhoClicked(), event, claimID);
 
         }), 4, 2 );
 
@@ -78,7 +79,7 @@ public class ClaimsOption {
         ArrayList<String> teleportButtonLore = getTeleportDiscountLore(player);
         ItemStack teleportButton = Utils.itemGenerator(Material.ENDER_PEARL, ChatColor.GREEN + "Teleport", teleportButtonLore);
         navigation.addItem(new GuiItem(teleportButton, event -> {
-
+            event.setCancelled(true);
             if(ess.getUser(player.getUniqueId()).getMoney().intValue() >= teleportCost){
                 Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
 
@@ -95,7 +96,8 @@ public class ClaimsOption {
 
                 Location teleportLoc = new Location(lesserCorner.getWorld(), middleX, 90, middleZ);
 
-                Bukkit.getScheduler().runTaskAsynchronously(CynagenGPAddon.plugin, () -> {
+                CynagenGPAddon plugin = JavaPlugin.getPlugin(CynagenGPAddon.class);
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                     // Didn't know you could do .getHighestBlock async, but gg
                     int safeY = greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getY();
                     teleportLoc.setY(safeY);
@@ -118,8 +120,6 @@ public class ClaimsOption {
                 player.sendMessage(ChatColor.RED + "You do not have enough money to teleport.");
             }
 
-            event.setCancelled(true);
-
         }), 2, 2 );
 
 
@@ -133,8 +133,8 @@ public class ClaimsOption {
         ItemStack membersButton = Utils.itemGenerator(Material.PLAYER_HEAD, ChatColor.GREEN + "Members", membersButtonLore);
         navigation.addItem(new GuiItem(membersButton, event -> {
 
-            claimsMembersMenu((Player) event.getWhoClicked(), claimID);
             event.setCancelled(true);
+            claimsMembersMenu((Player) event.getWhoClicked(), claimID);
 
         }), 6, 2 );
 
@@ -151,10 +151,30 @@ public class ClaimsOption {
         ItemStack flagsButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Flags", flagsButtonLore);
         navigation.addItem(new GuiItem(flagsButton, event -> {
 
-            showClaimFlags((Player) event.getWhoClicked(), claimID);
             event.setCancelled(true);
+            showClaimFlags((Player) event.getWhoClicked(), claimID);
 
         }), 4, 3 );
+
+        /*
+        Delete claim option
+         */
+        ArrayList<String> deleteClaimButtonLore = new ArrayList<>();
+        deleteClaimButtonLore.add(ChatColor.RED + "WARNING: THIS WILL DELETE YOUR CLAIM!");
+        deleteClaimButtonLore.add(" ");
+        deleteClaimButtonLore.add(ChatColor.RED + "THIS ACTION CANNOT BE UNDONE");
+        ItemStack deleteClaimButton = Utils.itemGenerator(Material.BARRIER, ChatColor.RED + "DELETE CLAIM ! ! !", deleteClaimButtonLore);
+        navigation.addItem(new GuiItem(deleteClaimButton, event -> {
+            event.setCancelled(true);
+
+            Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+            GriefPrevention griefPrevention = GriefPrevention.instance;
+            griefPrevention.dataStore.deleteClaim(claim);
+
+
+            player.sendMessage(ChatColor.GREEN + "Claim deleted.");
+
+        }), 4, 0 );
 
         gui.addPane(navigation);
         gui.show(player);

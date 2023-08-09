@@ -108,7 +108,7 @@ public class Utils {
         }
 
         else if(claimsNameCache.isEmpty()){
-            System.out.println("claimsNameCache Hashmap is empty");
+            // System.out.println("claimsNameCache Hashmap is empty");
             return defaultValue;
         }
 

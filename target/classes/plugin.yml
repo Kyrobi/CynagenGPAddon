@@ -9,6 +9,9 @@ commands:
   claims:
     description: Open the claims with all your claims
     aliases:
-      - claim_test
+      - claim
+      - claimlist
+      - claimslist
+      - listclaims
   eject:
     description: Removes a player out of your claim

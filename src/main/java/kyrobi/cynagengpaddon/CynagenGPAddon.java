@@ -2,6 +2,7 @@ package kyrobi.cynagengpaddon;
 
 import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
 import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
+import kyrobi.cynagengpaddon.Listeners.CommandOverride;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
@@ -66,9 +67,8 @@ public final class CynagenGPAddon extends JavaPlugin {
 
          new ClaimVisualizer(this);
          new ClaimCreate(this);
-
-
          new ClaimMessage(this);
+         new CommandOverride(this);
 
          this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
          this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
