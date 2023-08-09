@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="GPFlags-5.12.9-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../API/GPFlags-5.12.9-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -135,7 +135,7 @@ public class NoPlayerEnter {
 
                 // If the flag doesn't exist prior, make one and add the player
                 if(manager.getFlag(claim, "NoEnterPlayer") == null){
-                    manager.setFlag(claim, flag, true, true, nameCache.get(confirmEvent.getWhoClicked().getName()));
+                    manager.setFlag(claim, flag, true, nameCache.get(confirmEvent.getWhoClicked().getName()));
                     manager.save();
                 } else {
                     String[] blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
@@ -143,7 +143,7 @@ public class NoPlayerEnter {
                     list.add(onlinePlayerExact.getName());
                     String[] updatedBlockedMembers = list.toArray(new String[0]);
 
-                    manager.setFlag(claim, flag, true, true, updatedBlockedMembers);
+                    manager.setFlag(claim, flag, true, updatedBlockedMembers);
                     manager.save();
                 }
                 confirmEvent.getWhoClicked().sendMessage(ChatColor.GREEN + "Blocked " + ChatColor.GRAY + nameCache.get(confirmEvent.getWhoClicked().getName()) + ChatColor.GREEN + " from your claim.");
@@ -229,11 +229,11 @@ public class NoPlayerEnter {
             list.remove(playerToRemove.getName());
             // Everyone has been removed from this claim. If so, just remove the flag entirely
             if(list.size() == 0){
-                manager.unSetFlag(claim, flag, false);
+                manager.unSetFlag(claim, flag);
             }
 
             String[] updatedBlockedMembers = list.toArray(new String[0]);
-            manager.setFlag(claim, flag, true, true, updatedBlockedMembers);
+            manager.setFlag(claim, flag, true, updatedBlockedMembers);
             manager.save();
 
             claimsNoPlayerEnterMemberList(player, claimID);

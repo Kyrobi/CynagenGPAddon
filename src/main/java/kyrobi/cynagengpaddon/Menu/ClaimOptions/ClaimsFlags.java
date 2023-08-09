@@ -104,9 +104,9 @@ public class ClaimsFlags {
             FlagDefinition flag = manager.getFlagDefinitionByName("AllowPvP");
 
             if(!pvpEnabled){
-                manager.setFlag(claim, flag, true, true, "asd");
+                manager.setFlag(claim, flag, true, "asd");
             } else {
-                manager.setFlag(claim, flag, false, true, "asd");
+                manager.setFlag(claim, flag, false, "asd");
                 // manager.unSetFlag(claim, flag, false);
             }
 

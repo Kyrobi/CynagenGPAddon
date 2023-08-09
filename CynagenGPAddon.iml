@@ -23,7 +23,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="GPFlags-5.12.8" level="project" />
     <orderEntry type="library" name="java" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.google.guava:guava:31.1-jre" level="project" />
@@ -88,5 +87,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.leangen.geantyref:geantyref:1.3.11" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.essentialsx:EssentialsXSpawn:2.19.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.CC007:headsplugin-api:3.0.0" level="project" />
+    <orderEntry type="library" name="GPFlags-5.12.9-SNAPSHOT" level="project" />
   </component>
 </module>

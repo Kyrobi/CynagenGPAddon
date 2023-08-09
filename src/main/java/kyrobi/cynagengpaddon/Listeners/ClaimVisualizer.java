@@ -29,7 +29,7 @@ public class ClaimVisualizer implements Listener {
     private static final long DISPLAY_TIME = 5 * 20L; // Display time in ticks (1 second = 20 ticks)
     HashMap<String, BukkitTask> visualQueue = new HashMap<>();
     static Set<String> claimTooLargeWarning = new HashSet<>();
-    static int maxClaimSize = 1_000;
+    static int maxClaimSize = 500;
 
     public ClaimVisualizer(CynagenGPAddon plugin){
         this.plugin = plugin;
