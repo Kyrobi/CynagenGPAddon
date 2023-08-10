@@ -9,6 +9,7 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GPFlags.event.PlayerPreClaimBorderEvent;
 import me.ryanhamshire.GriefPrevention.Claim;
@@ -47,19 +48,17 @@ public class ClaimsList {
         if (player != null) {
             playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
             if (playerData != null) {
-                // playerClaims = playerData.getClaims();
-
-                for(Claim i: playerData.getClaims()){
-                    Claim myClaim = new Claim(i);
-                    playerClaims.add(myClaim);
-                }
+                playerClaims = playerData.getClaims();
+//                for(Claim i: playerData.getClaims()){
+//                    Claim myClaim = new Claim(i);
+//                    playerClaims.add(myClaim);
+//                }
 
             } else {
                 player.sendMessage(ChatColor.RED + "Error accessing your claims list...");
                 return;
             }
         }
-
 
         // Sort the claims in the array by their ID
         if(sort_type == Sort.CLAIM_ID){
@@ -74,6 +73,7 @@ public class ClaimsList {
                 }
             });
         }
+
         else if(sort_type == Sort.ALPHABETICAL){
             ListMultimap<String, Claim> sortedClaims = ArrayListMultimap.create();
             for(Claim i: playerData.getClaims()){
@@ -296,4 +296,5 @@ public class ClaimsList {
             userSortType.put(name, Sort.CLAIM_ID);
         }
     }
+
 }
