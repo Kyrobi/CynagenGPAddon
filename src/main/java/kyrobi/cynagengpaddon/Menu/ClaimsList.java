@@ -6,6 +6,9 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Ordering;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GPFlags.event.PlayerPreClaimBorderEvent;
 import me.ryanhamshire.GriefPrevention.Claim;
@@ -44,7 +47,13 @@ public class ClaimsList {
         if (player != null) {
             playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
             if (playerData != null) {
-                playerClaims = playerData.getClaims();
+                // playerClaims = playerData.getClaims();
+
+                for(Claim i: playerData.getClaims()){
+                    Claim myClaim = new Claim(i);
+                    playerClaims.add(myClaim);
+                }
+
             } else {
                 player.sendMessage(ChatColor.RED + "Error accessing your claims list...");
                 return;
@@ -66,18 +75,20 @@ public class ClaimsList {
             });
         }
         else if(sort_type == Sort.ALPHABETICAL){
-            TreeMap<String, Claim> sortedClaims = new TreeMap<>();
+            ListMultimap<String, Claim> sortedClaims = ArrayListMultimap.create();
             for(Claim i: playerData.getClaims()){
                 sortedClaims.put(getClaimName(i.getID()), i);
             }
 
             playerClaims.clear();
-            playerClaims.addAll(sortedClaims.values());
+//            playerClaims.addAll(sortedClaims.values());
+            Ordering<String> keyOrdering = Ordering.natural();  // Customize ordering as needed
 
-//            // Iterate through the key-value pairs (already in sorted order)
-//            for (String key : sortedClaims.keySet()) {
-//                playerClaims.add(sortedClaims.get(key));
-//            }
+            List<String> sortedKeys = keyOrdering.sortedCopy(sortedClaims.keySet());
+
+            for (String key : sortedKeys) {
+                playerClaims.addAll(sortedClaims.get(key));
+            }
         }
 
 
