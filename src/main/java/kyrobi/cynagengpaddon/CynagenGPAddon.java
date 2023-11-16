@@ -3,12 +3,15 @@ package kyrobi.cynagengpaddon;
 import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
 import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
 import kyrobi.cynagengpaddon.Listeners.CommandOverride;
+import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
+import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.event.block.NotePlayEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -69,6 +72,9 @@ public final class CynagenGPAddon extends JavaPlugin {
          new ClaimCreate(this);
          new ClaimMessage(this);
          new CommandOverride(this);
+
+         new NoPlayerEnter(this);
+         new ClaimsRename(this);
 
          this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
          this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));

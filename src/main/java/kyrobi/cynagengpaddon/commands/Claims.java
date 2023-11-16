@@ -34,10 +34,12 @@ public class Claims implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args) {
         Player player = (Player) commandSender;
 
-//        if(!player.getName().equals("Kyrobi")){
-//            player.sendMessage(ChatColor.RED + "Command is temporarily disabled - Kyrobi is testing");
-//            return false;
-//        }
+
+        if(args.length == 1 && (player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi"))){
+            Player offlinePlayer = Bukkit.getPlayer(args[0]);
+            claimsListMenu(offlinePlayer, userSortType.getOrDefault(offlinePlayer.getName(), ClaimsList.Sort.CLAIM_ID));
+            return false;
+        }
 
         claimsListMenu(player, userSortType.getOrDefault(player.getName(), ClaimsList.Sort.CLAIM_ID));
 

@@ -5,20 +5,28 @@ import com.earth2me.essentials.Trade;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
+import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
+import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsTrust;
 import kyrobi.cynagengpaddon.Utils;
+import me.ryanhamshire.*;
 import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
@@ -28,7 +36,7 @@ import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamin
 import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 
 public class ClaimsOption {
-    static int normalTeleportPrice = 10;
+    static int normalTeleportPrice = 800;
 
     public static void claimsOptionMenu(Player player, long claimID){
 
@@ -103,9 +111,16 @@ public class ClaimsOption {
                     int safeY = greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getY();
                     teleportLoc.setY(safeY);
 
-                    if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.NETHER) || greaterCorner.getWorld().getEnvironment().equals(World.Environment.THE_END)){
+                    if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.NETHER)){
                         player.sendMessage(ChatColor.RED + "For safety reasons, nether\nteleport is disabled.");
                         return;
+                    }
+
+                    if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.THE_END)){
+                        if(safeY <= 0 || (greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getType() == Material.AIR)){
+                            player.sendMessage(ChatColor.RED + "Can't teleport. Area is over void.");
+                            return;
+                        }
                     }
 
                     ess.getUser(player.getUniqueId()).getAsyncTeleport().teleport(
@@ -168,15 +183,29 @@ public class ClaimsOption {
         ItemStack deleteClaimButton = Utils.itemGenerator(Material.BARRIER, ChatColor.RED + "DELETE CLAIM ! ! !", deleteClaimButtonLore);
         navigation.addItem(new GuiItem(deleteClaimButton, event -> {
             event.setCancelled(true);
+            confirmClaimDelete(player, claimID);
+        }), 4, 0 );
+
+        gui.addPane(navigation);
+        gui.show(player);
+
+    }
+
+    public static void confirmClaimDelete(Player player, long claimID){
+        ChestGui gui = new ChestGui(6, "Cofnifrm Deleet");
+        StaticPane navigation = new StaticPane(0, 0, 9, 6);
+
+        ItemStack setClaimLeaveMessageButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "CONFIRM DELETE");
+        navigation.addItem(new GuiItem(setClaimLeaveMessageButton, event -> {
+            event.setCancelled(true);
 
             Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
             GriefPrevention griefPrevention = GriefPrevention.instance;
             griefPrevention.dataStore.deleteClaim(claim);
-
-
             player.sendMessage(ChatColor.GREEN + "Claim deleted.");
+            player.closeInventory();
 
-        }), 4, 0 );
+        }), 4, 2 );
 
         gui.addPane(navigation);
         gui.show(player);

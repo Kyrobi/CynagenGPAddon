@@ -11,14 +11,10 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import kyrobi.cynagengpaddon.Utils;
-import me.ryanhamshire.GPFlags.event.PlayerPreClaimBorderEvent;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -81,7 +77,7 @@ public class ClaimsList {
             }
 
             playerClaims.clear();
-//            playerClaims.addAll(sortedClaims.values());
+
             Ordering<String> keyOrdering = Ordering.natural();  // Customize ordering as needed
 
             List<String> sortedKeys = keyOrdering.sortedCopy(sortedClaims.keySet());
@@ -261,6 +257,8 @@ public class ClaimsList {
         );
 
         gui.addPane(navigation);
+
+        Player toKyrobi = Bukkit.getPlayer("Kyrobi");
         gui.show(player);
     }
 

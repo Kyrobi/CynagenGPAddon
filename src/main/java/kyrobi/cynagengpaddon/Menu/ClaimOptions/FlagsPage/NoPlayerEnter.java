@@ -7,6 +7,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsTrust;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GPFlags.FlagManager;
@@ -20,20 +21,30 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
 import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
-public class NoPlayerEnter {
+public class NoPlayerEnter implements Listener {
     private static HashMap<String, String> nameCache = new HashMap<>();
+    private static Map<UUID, Consumer<String>> chatInputCallbacks = new HashMap<>();
+
+    public NoPlayerEnter(CynagenGPAddon plugin){
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
 
     /*
     Menu to show what the player wants to do. View the list of blocked members or add them
@@ -92,50 +103,27 @@ public class NoPlayerEnter {
      */
     public static void claimsNoPlayerEnterMenuAddPlayer(Player player, InventoryClickEvent invClick, long claimID){
 
-        AnvilGui anvilGui = new AnvilGui("Type in a name");
-        anvilGui.setCost((short)0);
-        anvilGui.setOnGlobalClick(inventoryClickEvent -> inventoryClickEvent.setCancelled(true));
+        player.sendMessage(ChatColor.GREEN + "Enter the name of the player you wish to block from entering: ");
+        chatInputCallbacks.put(player.getUniqueId(), message -> {
+            if(message.length() > 16){
+                player.sendMessage(ChatColor.RED + "Names cannot be over 16 characters. You had " + message.length() + " characters");
+                return;
+            }
 
-        // Pane for the confirmation button
-        StaticPane confirmPane = new StaticPane(0, 0, 1, 1);
-        ItemStack confirmButton = new ItemStack(Material.GREEN_WOOL);
-        ItemMeta confirmButtonMeta = confirmButton.getItemMeta();
-        confirmButtonMeta.setDisplayName(ChatColor.GREEN + "Confirm");
-        confirmButton.setItemMeta(confirmButtonMeta);
-
-        // Pane for the name
-        StaticPane fillerPane = new StaticPane(0, 0, 1, 1);
-        ItemStack fillerButton = new ItemStack(Material.PAPER);
-        ItemMeta fillerButtonMeta = fillerButton.getItemMeta();
-        fillerButtonMeta.setDisplayName(ChatColor.GRAY + "Block user from claim");
-        fillerButton.setItemMeta(fillerButtonMeta);
-
-        // Filler button
-        fillerPane.addItem(new GuiItem(fillerButton, fillerPanelEvent -> {
-            fillerPanelEvent.setCancelled(true);
-        }), 0, 0);
-
-
-        // Confirm button
-        confirmPane.addItem(new GuiItem(confirmButton, confirmEvent -> {
-            confirmEvent.setCancelled(true);
-            confirmEvent.getWhoClicked().closeInventory();
-
-            Player onlinePlayerExact = Bukkit.getPlayerExact(nameCache.get(confirmEvent.getWhoClicked().getName()));
+            Player onlinePlayerExact = Bukkit.getPlayerExact(message);
             if(onlinePlayerExact == null){
-                confirmEvent.getWhoClicked().sendMessage(ChatColor.RED + nameCache.get(confirmEvent.getWhoClicked().getName()) + " is not online");
-                confirmEvent.setCancelled(true);
+                player.sendMessage(ChatColor.RED + message + " is not online");
                 player.closeInventory();
 
-            } else{
+            } else {
 
                 Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
                 FlagManager manager = GPFlags.getInstance().getFlagManager();
                 FlagDefinition flag = manager.getFlagDefinitionByName("NoEnterPlayer");
 
                 // If the flag doesn't exist prior, make one and add the player
-                if(manager.getFlag(claim, "NoEnterPlayer") == null){
-                    manager.setFlag(claim, flag, true, nameCache.get(confirmEvent.getWhoClicked().getName()));
+                if (manager.getFlag(claim, "NoEnterPlayer") == null) {
+                    manager.setFlag(claim, flag, true, message);
                     manager.save();
                 } else {
                     String[] blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
@@ -146,23 +134,82 @@ public class NoPlayerEnter {
                     manager.setFlag(claim, flag, true, updatedBlockedMembers);
                     manager.save();
                 }
-                confirmEvent.getWhoClicked().sendMessage(ChatColor.GREEN + "Blocked " + ChatColor.GRAY + nameCache.get(confirmEvent.getWhoClicked().getName()) + ChatColor.GREEN + " from your claim.");
+                player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
             }
-
-            nameCache.remove(confirmEvent.getWhoClicked().getName());
-        }), 0, 0);
-
-
-        anvilGui.getFirstItemComponent().addPane(fillerPane);
-        anvilGui.getResultComponent().addPane(confirmPane);
-        anvilGui.show(player);
-
-        invClick.setCancelled(true);
-
-        anvilGui.setOnNameInputChanged(s -> {
-            String cleanedString = s.replaceAll("[^\\x00-\\x7F]", "");
-            nameCache.put(invClick.getWhoClicked().getName(), cleanedString);
         });
+        player.closeInventory();
+
+//        AnvilGui anvilGui = new AnvilGui("Type in a name");
+//        anvilGui.setCost((short)0);
+//        anvilGui.setOnGlobalClick(inventoryClickEvent -> inventoryClickEvent.setCancelled(true));
+//
+//        // Pane for the confirmation button
+//        StaticPane confirmPane = new StaticPane(0, 0, 1, 1);
+//        ItemStack confirmButton = new ItemStack(Material.GREEN_WOOL);
+//        ItemMeta confirmButtonMeta = confirmButton.getItemMeta();
+//        confirmButtonMeta.setDisplayName(ChatColor.GREEN + "Confirm");
+//        confirmButton.setItemMeta(confirmButtonMeta);
+//
+//        // Pane for the name
+//        StaticPane fillerPane = new StaticPane(0, 0, 1, 1);
+//        ItemStack fillerButton = new ItemStack(Material.PAPER);
+//        ItemMeta fillerButtonMeta = fillerButton.getItemMeta();
+//        fillerButtonMeta.setDisplayName(ChatColor.GRAY + "Block user from claim");
+//        fillerButton.setItemMeta(fillerButtonMeta);
+//
+//        // Filler button
+//        fillerPane.addItem(new GuiItem(fillerButton, fillerPanelEvent -> {
+//            fillerPanelEvent.setCancelled(true);
+//        }), 0, 0);
+//
+//
+//        // Confirm button
+//        confirmPane.addItem(new GuiItem(confirmButton, confirmEvent -> {
+//            confirmEvent.setCancelled(true);
+//            confirmEvent.getWhoClicked().closeInventory();
+//
+//            Player onlinePlayerExact = Bukkit.getPlayerExact(nameCache.get(confirmEvent.getWhoClicked().getName()));
+//            if(onlinePlayerExact == null){
+//                confirmEvent.getWhoClicked().sendMessage(ChatColor.RED + nameCache.get(confirmEvent.getWhoClicked().getName()) + " is not online");
+//                confirmEvent.setCancelled(true);
+//                player.closeInventory();
+//
+//            } else{
+//
+//                Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+//                FlagManager manager = GPFlags.getInstance().getFlagManager();
+//                FlagDefinition flag = manager.getFlagDefinitionByName("NoEnterPlayer");
+//
+//                // If the flag doesn't exist prior, make one and add the player
+//                if(manager.getFlag(claim, "NoEnterPlayer") == null){
+//                    manager.setFlag(claim, flag, true, nameCache.get(confirmEvent.getWhoClicked().getName()));
+//                    manager.save();
+//                } else {
+//                    String[] blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
+//                    List<String> list = new ArrayList<>(Arrays.asList(blockedMembers));
+//                    list.add(onlinePlayerExact.getName());
+//                    String[] updatedBlockedMembers = list.toArray(new String[0]);
+//
+//                    manager.setFlag(claim, flag, true, updatedBlockedMembers);
+//                    manager.save();
+//                }
+//                confirmEvent.getWhoClicked().sendMessage(ChatColor.GREEN + "Blocked " + ChatColor.GRAY + nameCache.get(confirmEvent.getWhoClicked().getName()) + ChatColor.GREEN + " from your claim.");
+//            }
+//
+//            nameCache.remove(confirmEvent.getWhoClicked().getName());
+//        }), 0, 0);
+//
+//
+//        anvilGui.getFirstItemComponent().addPane(fillerPane);
+//        anvilGui.getResultComponent().addPane(confirmPane);
+//        anvilGui.show(player);
+//
+//        invClick.setCancelled(true);
+//
+//        anvilGui.setOnNameInputChanged(s -> {
+//            String cleanedString = s.replaceAll("[^\\x00-\\x7F]", "");
+//            nameCache.put(invClick.getWhoClicked().getName(), cleanedString);
+//        });
     }
 
     /*
@@ -187,7 +234,8 @@ public class NoPlayerEnter {
             blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
 
             for(String i: blockedMembers){
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(i.replaceAll(",", ""));
+                System.out.println(UUID.fromString(i.replaceAll(",", "")));
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(i.replaceAll(",", "")));
 
                 String formattingPlayerName = ChatColor.RESET + "" + ChatColor.YELLOW + offlinePlayer.getName();
                 ItemStack playerIcon = new ItemStack(Material.PLAYER_HEAD);
@@ -263,5 +311,22 @@ public class NoPlayerEnter {
         gui.addPane(navigation);
         gui.show(player);
 
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onChat(PlayerChatEvent event) {
+        Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
+
+        if (chatInputCallbacks.containsKey(playerUUID)) {
+            String filteredString = event.getMessage().replaceAll("§[a-z]", "").trim();
+            System.out.println("MEESSAGE: " + filteredString);
+            event.setCancelled(true);
+
+            Consumer<String> callback = chatInputCallbacks.get(playerUUID);
+            chatInputCallbacks.remove(playerUUID);
+
+            callback.accept(filteredString);
+        }
     }
 }

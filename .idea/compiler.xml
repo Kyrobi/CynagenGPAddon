@@ -9,8 +9,5 @@
         <module name="CynagenGPAddon" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="CynagenGPAddon" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

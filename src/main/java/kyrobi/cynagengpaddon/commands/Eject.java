@@ -17,7 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
+import org.bukkit.entity.Pose;
 
 
 public class Eject implements CommandExecutor {
@@ -39,6 +39,10 @@ public class Eject implements CommandExecutor {
         }
 
         if(args.length == 0){
+
+            // player.sendMessage("Setting pose");
+            // player.setPose(Pose.SITTING, true);
+
             player.sendMessage(ChatColor.RED + "Usage: /eject <player>");
             return false;
         }
