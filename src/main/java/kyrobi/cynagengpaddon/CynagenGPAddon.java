@@ -1,5 +1,6 @@
 package kyrobi.cynagengpaddon;
 
+import kyrobi.cynagengpaddon.Features.ProtectAnimals;
 import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
 import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
 import kyrobi.cynagengpaddon.Listeners.CommandOverride;
@@ -75,6 +76,7 @@ public final class CynagenGPAddon extends JavaPlugin {
 
          new NoPlayerEnter(this);
          new ClaimsRename(this);
+         new ProtectAnimals(this);
 
          this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
          this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
