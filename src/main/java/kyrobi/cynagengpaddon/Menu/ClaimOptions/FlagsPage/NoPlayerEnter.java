@@ -274,13 +274,19 @@ public class NoPlayerEnter implements Listener {
             FlagDefinition flag = manager.getFlagDefinitionByName("NoEnterPlayer");
 
             List<String> list = new ArrayList<>(Arrays.asList(finalBlockedMembers));
-            list.remove(playerToRemove.getName());
+
+
+            list.remove(playerToRemove.getUniqueId().toString());
             // Everyone has been removed from this claim. If so, just remove the flag entirely
             if(list.size() == 0){
                 manager.unSetFlag(claim, flag);
+                manager.save();
+                claimsNoPlayerEnterMemberList(player, claimID);
+                return;
             }
 
-            String[] updatedBlockedMembers = list.toArray(new String[0]);
+            // System.out.println("NewStrings: " + list.toArray(new String[0])[0]);
+            String[] updatedBlockedMembers = list.toArray(new String[list.size()]);
             manager.setFlag(claim, flag, true, updatedBlockedMembers);
             manager.save();
 
