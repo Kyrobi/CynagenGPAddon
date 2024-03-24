@@ -222,7 +222,7 @@ public class ClaimsOption {
             return (int) (normalTeleportPrice * (1 - teleportAndBoosterDiscountPackagePercentage));
         }
 
-        else if(player.hasPermission("claimTeleportDiscount")){
+        else if(player.hasPermission("perks.claimTeleportDiscount")){
             return (int) (normalTeleportPrice * (1 - teleportDiscountPackagePercentage));
         }
 
@@ -248,7 +248,7 @@ public class ClaimsOption {
         teleportButtonLore.add(ChatColor.GRAY + "(Not meant as replacement for");
         teleportButtonLore.add(ChatColor.GRAY + "/home, hence the cost.)");
 
-        if(player.hasPermission("vipplus.perks") || player.hasPermission("booster.perks") || player.hasPermission("claimTeleportDiscount")){
+        if(player.hasPermission("vipplus.perks") || player.hasPermission("booster.perks") || player.hasPermission("perks.claimTeleportDiscount")){
             teleportButtonLore.set(0,
                     ChatColor.GRAY + "▸ Cost: " + ChatColor.RED + ChatColor.STRIKETHROUGH + "$" + normalTeleportPrice + ChatColor.RESET + ChatColor.GREEN + " $" + getTeleportCost(player));
         }
