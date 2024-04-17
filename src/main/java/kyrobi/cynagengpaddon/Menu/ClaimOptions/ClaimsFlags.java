@@ -55,6 +55,7 @@ public class ClaimsFlags {
         FlagManager manager = GPFlags.getInstance().getFlagManager();
 
 
+
         ChestGui gui = new ChestGui(6, "Claim Flags");
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
@@ -119,7 +120,7 @@ public class ClaimsFlags {
         NoEnterPlayer
          */
         ArrayList<String> noEnterPlayerButtonLore = new ArrayList<>();
-        noEnterPlayerButtonLore.add(ChatColor.GRAY + "Block certain players from your claim");
+        noEnterPlayerButtonLore.add(ChatColor.GRAY + "▸ Block certain players from your claim");
         ItemStack membersButton = Utils.itemGenerator(Material.OAK_DOOR, ChatColor.GREEN + "Blacklisted Members", noEnterPlayerButtonLore);
         navigation.addItem(new GuiItem(membersButton, event -> {
             event.setCancelled(true);
@@ -144,6 +145,48 @@ public class ClaimsFlags {
             }
 
         }), 6, 2 );
+
+
+        /*
+        Global Accessor
+         */
+        ArrayList<String> globalAccessButtonLore = new ArrayList<>();
+        globalAccessButtonLore.add(ChatColor.GRAY + "▸ Allows all player to your");
+        globalAccessButtonLore.add(ChatColor.GRAY + "▸ buttons, levels, and beds");
+        globalAccessButtonLore.add(ChatColor.GRAY + " ");
+
+        boolean isPublic;
+        ArrayList<String> builders = new ArrayList<>();
+        ArrayList<String> containers = new ArrayList<>();
+        ArrayList<String> accessors = new ArrayList<>();
+        ArrayList<String> managers = new ArrayList<>();
+        claim.getPermissions(builders, containers, accessors, managers);
+        if(accessors.contains("public")){
+            isPublic = true;
+        } else {
+            isPublic = false;
+        }
+
+        if(isPublic){
+            globalAccessButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.GREEN + " Enabled");
+        } else {
+            globalAccessButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.RED + " Disabled");
+        }
+
+        ItemStack globalAccessButton = Utils.itemGenerator(Material.LEVER, ChatColor.GREEN + "Toggle Public Accesstrust",  globalAccessButtonLore);
+        navigation.addItem(new GuiItem(globalAccessButton, event -> {
+
+            event.setCancelled(true);
+
+            if(!isPublic){
+                claim.setPermission("public", ClaimPermission.Access);
+            } else {
+                claim.dropPermission("public");
+            }
+
+            showClaimFlags(player, claimID);
+
+        }), 4, 3 );
 
 
 //        /*

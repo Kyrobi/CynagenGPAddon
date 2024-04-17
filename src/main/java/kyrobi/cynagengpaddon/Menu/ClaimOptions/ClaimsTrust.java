@@ -36,8 +36,17 @@ public class ClaimsTrust {
         List<ItemStack> allMembers = new ArrayList<>();
 
         for(String i: trusts) {
-            UUID playerUUID = UUID.fromString(i);
+            UUID playerUUID = null;
+            if(i.equals("public")){
+                playerUUID = UUID.fromString("17d19be6-d6df-4177-b0a2-cd88f8ee4dd1");
+            } else {
+                playerUUID = UUID.fromString(i);
+            }
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+
+            if(!offlinePlayer.hasPlayedBefore()){
+                continue;
+            }
 
             String formattingPlayerName = ChatColor.RESET + "" + ChatColor.YELLOW + offlinePlayer.getName();
             ItemStack playerIcon = new ItemStack(Material.PLAYER_HEAD);
