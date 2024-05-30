@@ -192,7 +192,7 @@ public class ClaimsOption {
     }
 
     public static void confirmClaimDelete(Player player, long claimID){
-        ChestGui gui = new ChestGui(6, "Cofnifrm Deleet");
+        ChestGui gui = new ChestGui(6, "Confirm Delete");
         StaticPane navigation = new StaticPane(0, 0, 9, 6);
 
         ItemStack setClaimLeaveMessageButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "CONFIRM DELETE");

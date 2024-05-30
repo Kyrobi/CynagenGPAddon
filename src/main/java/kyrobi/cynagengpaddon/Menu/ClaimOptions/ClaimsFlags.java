@@ -184,6 +184,8 @@ public class ClaimsFlags {
                 claim.dropPermission("public");
             }
 
+            GriefPrevention.instance.dataStore.saveClaim(claim);
+
             showClaimFlags(player, claimID);
 
         }), 4, 3 );
