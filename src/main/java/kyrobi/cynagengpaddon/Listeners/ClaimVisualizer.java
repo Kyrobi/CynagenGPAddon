@@ -181,7 +181,7 @@ public class ClaimVisualizer implements Listener {
 
 
         Player player = e.getPlayer();
-        double playerY = player.getY();
+        double playerY = player.getY() - 2;
         for (Claim i : nearbyClaims) {
             Location corner1 = i.getLesserBoundaryCorner();
             Location corner2 = i.getGreaterBoundaryCorner();
@@ -199,20 +199,20 @@ public class ClaimVisualizer implements Listener {
 
 
 
-            spawnTextDisplayEast(world, corner2_, corner2_, corner4_, corner4_ , FACE.EAST_INSIDE);
-            spawnTextDisplayEast(world, corner2_, corner2_, corner4_, corner4_ , FACE.EAST_OUTSIDE);
+            spawnTextDisplayEast(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_INSIDE);
+            spawnTextDisplayEast(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_OUTSIDE);
 
             // WEST
-            spawnTextDisplayEast(world, corner1_, corner1_, corner3_, corner3_ , FACE.WEST_INSIDE);
-            spawnTextDisplayEast(world, corner1_, corner1_, corner3_, corner3_ , FACE.WEST_OUTSIDE);
+            spawnTextDisplayEast(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_INSIDE);
+            spawnTextDisplayEast(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_OUTSIDE);
 
             // NORTH
-            spawnTextDisplayEast(world, corner1_, corner1_, corner4_, corner4_ , FACE.NORTH_INSIDE);
-            spawnTextDisplayEast(world, corner1_, corner1_, corner4_, corner4_ , FACE.NORTH_OUTSIDE);
+            spawnTextDisplayEast(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_INSIDE);
+            spawnTextDisplayEast(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_OUTSIDE);
 
             // SOUTH
-            spawnTextDisplayEast(world, corner3_, corner3_, corner2_, corner2_ , FACE.SOUTH_INSIDE);
-            spawnTextDisplayEast(world, corner3_, corner3_, corner2_, corner2_ , FACE.SOUTH_OUTSIDE);
+            spawnTextDisplayEast(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_INSIDE);
+            spawnTextDisplayEast(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_OUTSIDE);
 
 
 
@@ -282,87 +282,151 @@ public class ClaimVisualizer implements Listener {
         player.spawnParticle(Particle.BLOCK_MARKER, particleLoc, 1, 0, 0, 0, 0, material);
     }
 
-    private void spawnTextDisplayEast(World world, Location corner1, Location corner2, Location corner3, Location corner4, FACE face) {
+//    private void spawnTextDisplayEast(World world, Location corner1, Location corner2, Location corner3, Location corner4, Player player, FACE face) {
+//        // Calculate center position
+//        double centerX = (corner1.getX() + corner2.getX() + corner3.getX() + corner4.getX()) / 4.0 + 0.5;
+//        double centerY = (corner1.getY() + corner2.getY() + corner3.getY() + corner4.getY()) / 4.0 + 0.5;
+//        double centerZ = (corner1.getZ() + corner2.getZ() + corner3.getZ() + corner4.getZ()) / 4.0 + 0.5;
+//
+//        // Logging the calculated center position
+//        Bukkit.getLogger().info("Center Position: X=" + centerX + ", Y=" + centerY + ", Z=" + centerZ);
+//
+//        // Calculate width and height
+//        double width = Math.abs(corner1.getZ() - corner3.getZ());
+//        double height = Math.abs(corner1.getX() - corner4.getX());
+//
+//        // Logging the width and height
+//        Bukkit.getLogger().info("Width: " + width + ", Height: " + height);
+//
+//        Location centerLocation = new Location(world, centerX, centerY, centerZ);
+//        TextDisplay textDisplay = (TextDisplay) world.spawnEntity(centerLocation, EntityType.TEXT_DISPLAY);
+//
+//        textDisplay.text(Component.text("■").color(TextColor.color(255, 255, 0)));
+//        textDisplay.setBillboard(Display.Billboard.FIXED);
+//        textDisplay.setDefaultBackground(false);
+//        textDisplay.setBackgroundColor(Color.fromARGB(0));
+//        textDisplay.setTextOpacity((byte) 127);
+//
+//        Vector3f translation = new Vector3f(0, 0, 0);
+//        AxisAngle4f rotation = new AxisAngle4f(0, 0, 0, 0);
+//        Vector3f scale = new Vector3f(0, 0, 0);
+//
+//        switch (face) {
+//            case EAST_OUTSIDE:
+//            case WEST_OUTSIDE:
+//                rotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
+//                translation = new Vector3f(0, 0, 1.5F);
+//                Bukkit.getLogger().info(face.toString());
+//                break;
+//            case EAST_INSIDE:
+//            case WEST_INSIDE:
+//                rotation = new AxisAngle4f((float) Math.toRadians(270), 0, 1, 0);
+//                translation = new Vector3f(0, 0, -1.5F);
+//                Bukkit.getLogger().info(face.toString());
+//                break;
+//            case NORTH_OUTSIDE:
+//            case SOUTH_INSIDE:
+//                rotation = new AxisAngle4f(0, 0, 1, 0);
+//                translation = new Vector3f(-1F, 0, 0);
+//                Bukkit.getLogger().info(face.toString());
+//                break;
+//            case NORTH_INSIDE:
+//            case SOUTH_OUTSIDE:
+//                rotation = new AxisAngle4f((float) Math.toRadians(180), 0, 1, 0);
+//                translation = new Vector3f(1F, 0, 0);
+//                Bukkit.getLogger().info(face.toString());
+//                break;
+//        }
+//
+//        // Scale calculation based on face
+//        if (face == FACE.EAST_OUTSIDE || face == FACE.EAST_INSIDE || face == FACE.WEST_OUTSIDE || face == FACE.WEST_INSIDE) {
+//            scale = new Vector3f(8 * (float) width, 20, 1);
+//        } else {
+//            scale = new Vector3f(8 * (float) height, 20, 1);
+//        }
+//
+//        // Logging the transformation parameters
+//        Bukkit.getLogger().info("Translation: " + translation + ", Rotation: " + rotation + ", Scale: " + scale);
+//
+//        Transformation transformation = new Transformation(translation, rotation, scale, new AxisAngle4f(0, 0, 0, 0));
+//        textDisplay.setTransformation(transformation);
+//    }
+
+    private void spawnTextDisplayEast(World world, Location corner1, Location corner2, Location corner3, Location corner4, Player player, FACE face) {
         // Calculate center position
-        double centerX = (corner1.getX() + corner2.getX() + corner3.getX() + corner4.getX()) / 4.0;
-        double centerY = (corner1.getY() + corner2.getY() + corner3.getY() + corner4.getY()) / 4.0;
-        double centerZ = (corner1.getZ() + corner2.getZ() + corner3.getZ() + corner4.getZ()) / 4.0;
+        double centerX = (corner1.getX() + corner2.getX() + corner3.getX() + corner4.getX()) / 4.0 + 0.5;
+        double centerY = (corner1.getY() + corner2.getY() + corner3.getY() + corner4.getY()) / 4.0 + 0.5;
+        double centerZ = (corner1.getZ() + corner2.getZ() + corner3.getZ() + corner4.getZ()) / 4.0 + 0.5;
+
+        // Logging the calculated center position
+        Bukkit.getLogger().info("Center Position: X=" + centerX + ", Y=" + centerY + ", Z=" + centerZ);
 
         // Calculate width and height
-//        double width = Math.abs(corner1.getZ() - corner3.getZ());
-//        double height = Math.abs(corner1.getY() - corner2.getY());
+        double width = Math.abs(corner1.getZ() - corner3.getZ());
+        double height = Math.abs(corner1.getX() - corner4.getX());
 
-        // Spawn TextDisplay entity
+        // Logging the width and height
+        Bukkit.getLogger().info("Width: " + width + ", Height: " + height);
+
         Location centerLocation = new Location(world, centerX, centerY, centerZ);
         TextDisplay textDisplay = (TextDisplay) world.spawnEntity(centerLocation, EntityType.TEXT_DISPLAY);
 
-        // Configure the TextDisplay entity
         textDisplay.text(Component.text("■").color(TextColor.color(255, 255, 0)));
         textDisplay.setBillboard(Display.Billboard.FIXED);
         textDisplay.setDefaultBackground(false);
         textDisplay.setBackgroundColor(Color.fromARGB(0));
-        textDisplay.setTextOpacity((byte) 127); // 50% opacity
+        textDisplay.setTextOpacity((byte) 127);
+        textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
 
-        // Create the transformation with rotation and scaling
-        Vector3f translation = new Vector3f(0, 0, 0); // Translation
-        AxisAngle4f rightRotation = new AxisAngle4f(0, 0, 0, 0); // No final rotation
-        Vector3f scale = new Vector3f(20, 20, 20); // Uniform scaling (no scaling)
+        Vector3f translation = new Vector3f(0, 0, 0);
+        AxisAngle4f rotation = new AxisAngle4f(0, 0, 0, 0);
+        Vector3f scale = new Vector3f(0, 0, 0);
 
-        /*
-        EXAMPLE
-        AxisAngle4f leftRotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
-        (float) Math.toRadians(90) = specifies how much to change the angle by
-        0 - Don't apply the transformation to this axis
-        1 - We specify the transformation to occur on the Y axis (aka apply the 90 degrees to the Y axis)
-        0 - Don't apply the transformation to this axis
-         */
-
-
-        // For North. Spawn 2 so that it's visible from both back and front
-        AxisAngle4f leftRotation = new AxisAngle4f(0, 0, 0, 0);
-
-        // EAST
-        if(face == FACE.EAST_OUTSIDE){
-            Bukkit.getLogger().info("EAST_OUTSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
-        }
-        else if(face == FACE.EAST_INSIDE){
-            Bukkit.getLogger().info("EAST_INSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(270), 0, 1, 0);
-        }
-
-        // WEST
-        else if(face == FACE.WEST_INSIDE){
-            Bukkit.getLogger().info("WEST_INSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(270), 0, 1, 0);
-        }
-        else if(face == FACE.WEST_OUTSIDE){
-            Bukkit.getLogger().info("WEST_OUTSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
+        switch (face) {
+            case EAST_OUTSIDE:
+            case WEST_OUTSIDE:
+                rotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
+                // translation = new Vector3f(0, 0, 1.5F);
+                translation = new Vector3f(0, 0, ((float)width)/10);
+                Bukkit.getLogger().info(face.toString());
+                break;
+            case EAST_INSIDE:
+            case WEST_INSIDE:
+                rotation = new AxisAngle4f((float) Math.toRadians(270), 0, 1, 0);
+                // translation = new Vector3f(0, 0, -1.5F);
+                translation = new Vector3f(0, 0, ((float)-width)/10);
+                Bukkit.getLogger().info(face.toString());
+                break;
+            case NORTH_OUTSIDE:
+            case SOUTH_INSIDE:
+                rotation = new AxisAngle4f(0, 0, 1, 0);
+                // translation = new Vector3f(-1F, 0, 0);
+                translation = new Vector3f(((float)-height)/10, 0, 0);
+                Bukkit.getLogger().info(face.toString());
+                break;
+            case NORTH_INSIDE:
+            case SOUTH_OUTSIDE:
+                rotation = new AxisAngle4f((float) Math.toRadians(180), 0, 1, 0);
+                // translation = new Vector3f(1F, 0, 0);
+                translation = new Vector3f(((float)height)/10, 0, 0);
+                Bukkit.getLogger().info(face.toString());
+                break;
         }
 
-        // NORTH
-        else if(face == FACE.NORTH_OUTSIDE){
-            Bukkit.getLogger().info("NORTH_OUTSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(0), 0, 1, 0);
-        }
-        else if(face == FACE.NORTH_INSIDE){
-            Bukkit.getLogger().info("NORTH_INSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(180), 0, 1, 0);
+        // Scale calculation based on face
+        if (face == FACE.EAST_OUTSIDE || face == FACE.EAST_INSIDE || face == FACE.WEST_OUTSIDE || face == FACE.WEST_INSIDE) {
+            scale = new Vector3f(8 * (float) width, 20, 1);
+        } else {
+            scale = new Vector3f(8 * (float) height, 20, 1);
         }
 
-        // SOUTH
-        else if(face == FACE.SOUTH_OUTSIDE){
-            Bukkit.getLogger().info("SOUTH_OUTSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(180), 0, 1, 0);
-        }
-        else if(face == FACE.SOUTH_INSIDE){
-            Bukkit.getLogger().info("SOUTH_INSIDE");
-            leftRotation = new AxisAngle4f((float) Math.toRadians(0), 0, 1, 0);
-        }
+        // Logging the transformation parameters
+        Bukkit.getLogger().info("Translation: " + translation + ", Rotation: " + rotation + ", Scale: " + scale);
 
-        Transformation transformation = new Transformation(translation, leftRotation, scale, rightRotation);
+        Transformation transformation = new Transformation(translation, rotation, scale, new AxisAngle4f(0, 0, 0, 0));
         textDisplay.setTransformation(transformation);
     }
+
+
 
 }
