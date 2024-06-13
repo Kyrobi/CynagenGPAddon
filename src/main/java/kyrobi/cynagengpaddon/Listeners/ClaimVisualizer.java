@@ -33,6 +33,8 @@ public class ClaimVisualizer implements Listener {
         WEST_INSIDE
     }
 
+    private final int heightScaleForWall = -80;
+
     private CynagenGPAddon plugin;
 
     private static final long DISPLAY_TIME = 5 * 20L; // Display time in ticks (1 second = 20 ticks)
@@ -196,25 +198,34 @@ public class ClaimVisualizer implements Listener {
 
 
 
-            spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_INSIDE);
-            spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_OUTSIDE);
+            ArrayList<Entity> displayEntities = new ArrayList<>();
+
+            displayEntities.add(spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_INSIDE));
+            displayEntities.add(spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_OUTSIDE));
 
             // WEST
-            spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_INSIDE);
-            spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_OUTSIDE);
+            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_INSIDE));
+            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_OUTSIDE));
 
             // NORTH
-            spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_INSIDE);
-            spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_OUTSIDE);
+            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_INSIDE));
+            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_OUTSIDE));
 
             // SOUTH
-            spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_INSIDE);
-            spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_OUTSIDE);
+            displayEntities.add(spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_INSIDE));
+            displayEntities.add(spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_OUTSIDE));
 
-            spawnBlockEntityCorner(world, corner1_, player);
-            spawnBlockEntityCorner(world, corner2_, player);
-            spawnBlockEntityCorner(world, corner3_, player);
-            spawnBlockEntityCorner(world, corner4_, player);
+            displayEntities.add(spawnBlockEntityCorner(world, corner1_, player));
+            displayEntities.add(spawnBlockEntityCorner(world, corner2_, player));
+            displayEntities.add(spawnBlockEntityCorner(world, corner3_, player));
+            displayEntities.add(spawnBlockEntityCorner(world, corner4_, player));
+
+
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                for(Entity ent: displayEntities){
+                    ent.remove();
+                }
+            }, 20 * 10L);
 
 
 
@@ -284,7 +295,7 @@ public class ClaimVisualizer implements Listener {
         player.spawnParticle(Particle.BLOCK_MARKER, particleLoc, 1, 0, 0, 0, 0, material);
     }
 
-    private void spawnTextDisplay(World world, Location corner1, Location corner2, Location corner3, Location corner4, Player player, FACE face) {
+    private TextDisplay spawnTextDisplay(World world, Location corner1, Location corner2, Location corner3, Location corner4, Player player, FACE face) {
         // Calculate center position
         double centerX = (corner1.getX() + corner2.getX() + corner3.getX() + corner4.getX()) / 4.0 + 0.5;
         double centerY = (corner1.getY() + corner2.getY() + corner3.getY() + corner4.getY()) / 4.0 + 0.5;
@@ -303,12 +314,14 @@ public class ClaimVisualizer implements Listener {
         Location centerLocation = new Location(world, centerX, centerY, centerZ);
         TextDisplay textDisplay = (TextDisplay) world.spawnEntity(centerLocation, EntityType.TEXT_DISPLAY);
 
+        textDisplay.setVisibleByDefault(false);
         textDisplay.text(Component.text("■").color(TextColor.color(255, 255, 0)));
         textDisplay.setBillboard(Display.Billboard.FIXED);
         textDisplay.setDefaultBackground(false);
         textDisplay.setBackgroundColor(Color.fromARGB(0));
         textDisplay.setTextOpacity((byte) 77);
         textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
+        textDisplay.setBrightness(new Display.Brightness(15, 15));
 
         Vector3f translation = new Vector3f(0, 0, 0);
         AxisAngle4f rotation = new AxisAngle4f(0, 0, 0, 0);
@@ -319,37 +332,38 @@ public class ClaimVisualizer implements Listener {
             case WEST_OUTSIDE:
                 rotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
                 // translation = new Vector3f(0, 0, 1.5F);
-                translation = new Vector3f(0, 0, ((float)width)/10);
+                translation = new Vector3f(0, heightScaleForWall, ((float)width)/10);
                 Bukkit.getLogger().info(face.toString());
                 break;
             case EAST_INSIDE:
             case WEST_INSIDE:
                 rotation = new AxisAngle4f((float) Math.toRadians(270), 0, 1, 0);
                 // translation = new Vector3f(0, 0, -1.5F);
-                translation = new Vector3f(0, 0, ((float)-width)/10);
+                translation = new Vector3f(0, heightScaleForWall, ((float)-width)/10);
                 Bukkit.getLogger().info(face.toString());
                 break;
             case NORTH_OUTSIDE:
             case SOUTH_INSIDE:
                 rotation = new AxisAngle4f(0, 0, 1, 0);
                 // translation = new Vector3f(-1F, 0, 0);
-                translation = new Vector3f(((float)-height)/10, 0, 0);
+                translation = new Vector3f(((float)-height)/10, heightScaleForWall, 0);
                 Bukkit.getLogger().info(face.toString());
                 break;
             case NORTH_INSIDE:
             case SOUTH_OUTSIDE:
                 rotation = new AxisAngle4f((float) Math.toRadians(180), 0, 1, 0);
                 // translation = new Vector3f(1F, 0, 0);
-                translation = new Vector3f(((float)height)/10, 0, 0);
+                translation = new Vector3f(((float)height)/10, heightScaleForWall, 0);
                 Bukkit.getLogger().info(face.toString());
                 break;
         }
 
         // Scale calculation based on face
+        final int scaleVal = 630;
         if (face == FACE.EAST_OUTSIDE || face == FACE.EAST_INSIDE || face == FACE.WEST_OUTSIDE || face == FACE.WEST_INSIDE) {
-            scale = new Vector3f(8 * (float) width, 20, 1);
+            scale = new Vector3f(8 * (float) width, scaleVal, 1);
         } else {
-            scale = new Vector3f(8 * (float) height, 20, 1);
+            scale = new Vector3f(8 * (float) height, scaleVal, 1);
         }
 
         // Logging the transformation parameters
@@ -357,24 +371,32 @@ public class ClaimVisualizer implements Listener {
 
         Transformation transformation = new Transformation(translation, rotation, scale, new AxisAngle4f(0, 0, 0, 0));
         textDisplay.setTransformation(transformation);
+        player.showEntity(plugin, textDisplay);
+        return textDisplay;
     }
 
-    private void spawnBlockEntityCorner(World world, Location location, Player player){
+    private BlockDisplay spawnBlockEntityCorner(World world, Location location, Player player){
 
         Location playerHeight = new Location(world, location.getBlockX(), player.getY(), location.getBlockZ());
         BlockDisplay blockDisplay = (BlockDisplay) world.spawnEntity(playerHeight , EntityType.BLOCK_DISPLAY);
+        blockDisplay.setVisibleByDefault(false);
 
         blockDisplay.setBillboard(Display.Billboard.FIXED);
         blockDisplay.setDisplayHeight(20F);
         blockDisplay.setBlock(Material.RED_CONCRETE.createBlockData());
+        blockDisplay.setBrightness(new Display.Brightness(15, 15));
 
-        Vector3f translation = new Vector3f(0.4F, 0, 0.4F);
+        Vector3f translation = new Vector3f(0.4F, -20, 0.4F);
         AxisAngle4f rotation = new AxisAngle4f(0, 0, 0, 0);
-        Vector3f scale = new Vector3f(0.2F, 3.5F, 0.2F);
+        Vector3f scale = new Vector3f(0.2F, 80.5F, 0.2F);
 
 
         Transformation transformation = new Transformation(translation, rotation, scale, new AxisAngle4f(0, 0, 0, 0));
         blockDisplay.setTransformation(transformation);
+
+        player.showEntity(plugin, blockDisplay);
+
+        return blockDisplay;
     }
 
 }
