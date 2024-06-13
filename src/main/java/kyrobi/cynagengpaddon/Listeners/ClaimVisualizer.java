@@ -50,6 +50,12 @@ public class ClaimVisualizer implements Listener {
     @EventHandler
     public void onClaimVisualize(ClaimInspectionEvent e){
 
+//        if(e.getPlayer().getName().equals("Kyrobi") || e.getPlayer().getName().equals("Mokokotei")){
+//
+//        } else {
+//            return;
+//        }
+
         if(e.getClaims().isEmpty()){
             return;
         }
@@ -182,57 +188,73 @@ public class ClaimVisualizer implements Listener {
         Player player = e.getPlayer();
         double playerY = player.getY() - 2;
         for (Claim i : nearbyClaims) {
+
             Location corner1 = i.getLesserBoundaryCorner();
             Location corner2 = i.getGreaterBoundaryCorner();
             World world = corner1.getWorld();
 
-            // Calculate the other two corners
-            Location corner3 = new Location(world, corner1.getX(), corner1.getY(), corner2.getZ());
-            Location corner4 = new Location(world, corner2.getX(), corner2.getY(), corner1.getZ());
+            int xSize = Math.abs(corner2.getBlockX() - corner1.getBlockX()) + 1;
+            int zSize = Math.abs(corner2.getBlockZ() - corner1.getBlockZ()) + 1;
 
-            // EAST
-            Location corner1_ = new Location(world, corner1.getBlockX(), playerY, corner1.getBlockZ());
-            Location corner2_ = new Location(world, corner2.getBlockX(), playerY, corner2.getBlockZ());
-            Location corner3_ = new Location(world, corner3.getBlockX(), playerY, corner3.getBlockZ());
-            Location corner4_ = new Location(world, corner4.getBlockX(), playerY, corner4.getBlockZ());
+            // Check if claim size exceeds the limit
+            if (xSize <= maxClaimSize && zSize <= maxClaimSize) {
+                // Calculate the other two corners
+                Location corner3 = new Location(world, corner1.getX(), corner1.getY(), corner2.getZ());
+                Location corner4 = new Location(world, corner2.getX(), corner2.getY(), corner1.getZ());
 
-
-
-            ArrayList<Entity> displayEntities = new ArrayList<>();
-
-            displayEntities.add(spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_INSIDE));
-            displayEntities.add(spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_OUTSIDE));
-
-            // WEST
-            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_INSIDE));
-            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_OUTSIDE));
-
-            // NORTH
-            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_INSIDE));
-            displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_OUTSIDE));
-
-            // SOUTH
-            displayEntities.add(spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_INSIDE));
-            displayEntities.add(spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_OUTSIDE));
-
-            displayEntities.add(spawnBlockEntityCorner(world, corner1_, player));
-            displayEntities.add(spawnBlockEntityCorner(world, corner2_, player));
-            displayEntities.add(spawnBlockEntityCorner(world, corner3_, player));
-            displayEntities.add(spawnBlockEntityCorner(world, corner4_, player));
+                // EAST
+                Location corner1_ = new Location(world, corner1.getBlockX(), playerY, corner1.getBlockZ());
+                Location corner2_ = new Location(world, corner2.getBlockX(), playerY, corner2.getBlockZ());
+                Location corner3_ = new Location(world, corner3.getBlockX(), playerY, corner3.getBlockZ());
+                Location corner4_ = new Location(world, corner4.getBlockX(), playerY, corner4.getBlockZ());
 
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for(Entity ent: displayEntities){
-                    ent.remove();
+
+                ArrayList<Entity> displayEntities = new ArrayList<>();
+
+                displayEntities.add(spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_INSIDE));
+                displayEntities.add(spawnTextDisplay(world, corner2_, corner2_, corner4_, corner4_ , player, FACE.EAST_OUTSIDE));
+
+                // WEST
+                displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_INSIDE));
+                displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner3_, corner3_ , player, FACE.WEST_OUTSIDE));
+
+                // NORTH
+                displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_INSIDE));
+                displayEntities.add(spawnTextDisplay(world, corner1_, corner1_, corner4_, corner4_ , player, FACE.NORTH_OUTSIDE));
+
+                // SOUTH
+                displayEntities.add(spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_INSIDE));
+                displayEntities.add(spawnTextDisplay(world, corner3_, corner3_, corner2_, corner2_ , player, FACE.SOUTH_OUTSIDE));
+
+                displayEntities.add(spawnBlockEntityCorner(world, corner1_, player));
+                displayEntities.add(spawnBlockEntityCorner(world, corner2_, player));
+                displayEntities.add(spawnBlockEntityCorner(world, corner3_, player));
+                displayEntities.add(spawnBlockEntityCorner(world, corner4_, player));
+
+
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    for(Entity ent: displayEntities){
+                        ent.remove();
+                    }
+                }, 20 * 10L);
+
+            }
+
+            else {
+                if(!claimTooLargeWarning.contains(e.getPlayer().getName())){
+                    e.getPlayer().sendMessage(ChatColor.RED + "There is a claim that is too large to visualize. Not showing particles.");
+                    claimTooLargeWarning.add(e.getPlayer().getName());
                 }
-            }, 20 * 10L);
+            }
 
 
 
-            System.out.println("Corner 1: " + corner1);
-            System.out.println("Corner 2: " + corner2);
-            System.out.println("Corner 3: " + corner3);
-            System.out.println("Corner 4: " + corner4);
+
+//            System.out.println("Corner 1: " + corner1);
+//            System.out.println("Corner 2: " + corner2);
+//            System.out.println("Corner 3: " + corner3);
+//            System.out.println("Corner 4: " + corner4);
         }
 
 
@@ -302,14 +324,14 @@ public class ClaimVisualizer implements Listener {
         double centerZ = (corner1.getZ() + corner2.getZ() + corner3.getZ() + corner4.getZ()) / 4.0 + 0.5;
 
         // Logging the calculated center position
-        Bukkit.getLogger().info("Center Position: X=" + centerX + ", Y=" + centerY + ", Z=" + centerZ);
+        // Bukkit.getLogger().info("Center Position: X=" + centerX + ", Y=" + centerY + ", Z=" + centerZ);
 
         // Calculate width and height
         double width = Math.abs(corner1.getZ() - corner3.getZ());
         double height = Math.abs(corner1.getX() - corner4.getX());
 
         // Logging the width and height
-        Bukkit.getLogger().info("Width: " + width + ", Height: " + height);
+        // Bukkit.getLogger().info("Width: " + width + ", Height: " + height);
 
         Location centerLocation = new Location(world, centerX, centerY, centerZ);
         TextDisplay textDisplay = (TextDisplay) world.spawnEntity(centerLocation, EntityType.TEXT_DISPLAY);
@@ -333,28 +355,28 @@ public class ClaimVisualizer implements Listener {
                 rotation = new AxisAngle4f((float) Math.toRadians(90), 0, 1, 0);
                 // translation = new Vector3f(0, 0, 1.5F);
                 translation = new Vector3f(0, heightScaleForWall, ((float)width)/10);
-                Bukkit.getLogger().info(face.toString());
+                // Bukkit.getLogger().info(face.toString());
                 break;
             case EAST_INSIDE:
             case WEST_INSIDE:
                 rotation = new AxisAngle4f((float) Math.toRadians(270), 0, 1, 0);
                 // translation = new Vector3f(0, 0, -1.5F);
                 translation = new Vector3f(0, heightScaleForWall, ((float)-width)/10);
-                Bukkit.getLogger().info(face.toString());
+                // Bukkit.getLogger().info(face.toString());
                 break;
             case NORTH_OUTSIDE:
             case SOUTH_INSIDE:
                 rotation = new AxisAngle4f(0, 0, 1, 0);
                 // translation = new Vector3f(-1F, 0, 0);
                 translation = new Vector3f(((float)-height)/10, heightScaleForWall, 0);
-                Bukkit.getLogger().info(face.toString());
+                // Bukkit.getLogger().info(face.toString());
                 break;
             case NORTH_INSIDE:
             case SOUTH_OUTSIDE:
                 rotation = new AxisAngle4f((float) Math.toRadians(180), 0, 1, 0);
                 // translation = new Vector3f(1F, 0, 0);
                 translation = new Vector3f(((float)height)/10, heightScaleForWall, 0);
-                Bukkit.getLogger().info(face.toString());
+                // Bukkit.getLogger().info(face.toString());
                 break;
         }
 
@@ -367,7 +389,7 @@ public class ClaimVisualizer implements Listener {
         }
 
         // Logging the transformation parameters
-        Bukkit.getLogger().info("Translation: " + translation + ", Rotation: " + rotation + ", Scale: " + scale);
+        // Bukkit.getLogger().info("Translation: " + translation + ", Rotation: " + rotation + ", Scale: " + scale);
 
         Transformation transformation = new Transformation(translation, rotation, scale, new AxisAngle4f(0, 0, 0, 0));
         textDisplay.setTransformation(transformation);
