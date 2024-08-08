@@ -4,6 +4,7 @@ import kyrobi.cynagengpaddon.Features.ProtectAnimals;
 import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
 import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
 import kyrobi.cynagengpaddon.Listeners.CommandOverride;
+import kyrobi.cynagengpaddon.Listeners.ShovelHover;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter;
@@ -20,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static kyrobi.cynagengpaddon.Listeners.ClaimVisualizer.*;
 import static kyrobi.cynagengpaddon.Utils.*;
 
 public final class CynagenGPAddon extends JavaPlugin {
@@ -77,6 +79,7 @@ public final class CynagenGPAddon extends JavaPlugin {
          new NoPlayerEnter(this);
          new ClaimsRename(this);
          new ProtectAnimals(this);
+         new ShovelHover(this);
 
          this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
          this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
@@ -86,5 +89,6 @@ public final class CynagenGPAddon extends JavaPlugin {
     public void onDisable() {
         writeClaimsToDisk();
         writeDatesToDisk();
+
     }
 }

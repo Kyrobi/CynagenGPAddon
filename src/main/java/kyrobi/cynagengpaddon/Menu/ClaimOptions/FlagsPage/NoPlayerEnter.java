@@ -123,7 +123,7 @@ public class NoPlayerEnter implements Listener {
 
                 // If the flag doesn't exist prior, make one and add the player
                 if (manager.getFlag(claim, "NoEnterPlayer") == null) {
-                    manager.setFlag(claim, flag, true, message);
+                    manager.setFlag(claim.getID().toString(), flag, true, message);
                     manager.save();
                 } else {
                     String[] blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
@@ -131,7 +131,7 @@ public class NoPlayerEnter implements Listener {
                     list.add(onlinePlayerExact.getName());
                     String[] updatedBlockedMembers = list.toArray(new String[0]);
 
-                    manager.setFlag(claim, flag, true, updatedBlockedMembers);
+                    manager.setFlag(claim.getID().toString(), flag, true, updatedBlockedMembers);
                     manager.save();
                 }
                 player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
@@ -287,7 +287,7 @@ public class NoPlayerEnter implements Listener {
 
             // System.out.println("NewStrings: " + list.toArray(new String[0])[0]);
             String[] updatedBlockedMembers = list.toArray(new String[list.size()]);
-            manager.setFlag(claim, flag, true, updatedBlockedMembers);
+            manager.setFlag(claim.getID().toString(), flag, true, updatedBlockedMembers);
             manager.save();
 
             claimsNoPlayerEnterMemberList(player, claimID);

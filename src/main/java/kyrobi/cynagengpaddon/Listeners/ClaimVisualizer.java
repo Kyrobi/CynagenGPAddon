@@ -10,6 +10,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
@@ -38,9 +40,11 @@ public class ClaimVisualizer implements Listener {
     private CynagenGPAddon plugin;
 
     private static final long DISPLAY_TIME = 5 * 20L; // Display time in ticks (1 second = 20 ticks)
-    HashMap<String, BukkitTask> visualQueue = new HashMap<>();
+    private static HashMap<String, BukkitTask> visualQueue = new HashMap<>();
     static Set<String> claimTooLargeWarning = new HashSet<>();
     static int maxClaimSize = 1000;
+
+    HashMap<String, List<Long>> alreadyVisualized = new HashMap<>();
 
     public ClaimVisualizer(CynagenGPAddon plugin){
         this.plugin = plugin;
@@ -189,6 +193,19 @@ public class ClaimVisualizer implements Listener {
         double playerY = player.getY() - 2;
         for (Claim i : nearbyClaims) {
 
+            if(alreadyVisualized.get(player.getName()) == null){
+                List<Long> claims = new ArrayList<>();
+                alreadyVisualized.put(player.getName(), claims);
+            }
+
+            // If we're currently already showing this to the player,
+            // don't show again
+            if(alreadyVisualized.get(player.getName()).contains(i.getID())){
+                continue;
+            }
+            alreadyVisualized.get(player.getName()).add(i.getID());
+
+
             Location corner1 = i.getLesserBoundaryCorner();
             Location corner2 = i.getGreaterBoundaryCorner();
             World world = corner1.getWorld();
@@ -237,7 +254,9 @@ public class ClaimVisualizer implements Listener {
                     for(Entity ent: displayEntities){
                         ent.remove();
                     }
-                }, 20 * 10L);
+
+                    alreadyVisualized.get(player.getName()).clear();
+                }, 20 * 20L);
 
             }
 
@@ -336,12 +355,13 @@ public class ClaimVisualizer implements Listener {
         Location centerLocation = new Location(world, centerX, centerY, centerZ);
         TextDisplay textDisplay = (TextDisplay) world.spawnEntity(centerLocation, EntityType.TEXT_DISPLAY);
 
+        textDisplay.setPersistent(false);
         textDisplay.setVisibleByDefault(false);
         textDisplay.text(Component.text("■").color(TextColor.color(255, 255, 0)));
         textDisplay.setBillboard(Display.Billboard.FIXED);
         textDisplay.setDefaultBackground(false);
         textDisplay.setBackgroundColor(Color.fromARGB(0));
-        textDisplay.setTextOpacity((byte) 77);
+        textDisplay.setTextOpacity((byte) 40);
         textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
         textDisplay.setBrightness(new Display.Brightness(15, 15));
 
@@ -403,6 +423,7 @@ public class ClaimVisualizer implements Listener {
         BlockDisplay blockDisplay = (BlockDisplay) world.spawnEntity(playerHeight , EntityType.BLOCK_DISPLAY);
         blockDisplay.setVisibleByDefault(false);
 
+        blockDisplay.setPersistent(false);
         blockDisplay.setBillboard(Display.Billboard.FIXED);
         blockDisplay.setDisplayHeight(20F);
         blockDisplay.setBlock(Material.RED_CONCRETE.createBlockData());
@@ -420,5 +441,6 @@ public class ClaimVisualizer implements Listener {
 
         return blockDisplay;
     }
+
 
 }

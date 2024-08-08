@@ -172,7 +172,7 @@ public class ClaimMessage implements Listener {
             Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
             FlagManager manager = GPFlags.getInstance().getFlagManager();
             FlagDefinition flag = manager.getFlagDefinitionByName("EnterMessage");
-            manager.setFlag(claim, flag, true, message);
+            manager.setFlag(claim.getID().toString(), flag, true, message);
             player.sendMessage(ChatColor.GREEN + "Claim enter message set to: " + ChatColor.WHITE + message);
             manager.save();
         });
@@ -190,7 +190,7 @@ public class ClaimMessage implements Listener {
             Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
             FlagManager manager = GPFlags.getInstance().getFlagManager();
             FlagDefinition flag = manager.getFlagDefinitionByName("ExitMessage");
-            manager.setFlag(claim, flag, true, message);
+            manager.setFlag(claim.getID().toString(), flag, true, message);
             player.sendMessage(ChatColor.GREEN + "Claim leave message set to: " + ChatColor.WHITE + message);
             manager.save();
         });
