@@ -34,7 +34,7 @@ public class ShovelHover implements Listener {
         int newSlot = e.getNewSlot();
         ItemStack item = player.getInventory().getItem(newSlot);
 
-        String filler = ChatColor.RESET + "" + ChatColor.GREEN + "------------";
+        String filler = ChatColor.RESET + "" + ChatColor.GRAY + "==============";
         if (item != null && item.getType() == Material.GOLDEN_SHOVEL) {
 
             List<Chunk> chunksAroundPlayer = getChunksAroundPlayer(player, Bukkit.getViewDistance());
@@ -47,6 +47,7 @@ public class ShovelHover implements Listener {
 
             ClaimInspectionEvent claimInspectionEvent = new ClaimInspectionEvent(e.getPlayer(), null, claims, true);
             Bukkit.getServer().getPluginManager().callEvent(claimInspectionEvent);
+            player.sendMessage(filler + "\n \n \n" +ChatColor.GREEN + "View all your claims with " + ChatColor.GOLD + "/claims" + ChatColor.GREEN + "!\n"+ChatColor.GRAY + "(You can also teleport to them!)" + "\n \n \n" + filler);
 
         }
     }
