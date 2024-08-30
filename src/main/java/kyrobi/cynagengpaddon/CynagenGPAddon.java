@@ -16,6 +16,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.block.NotePlayEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,6 +41,8 @@ public final class CynagenGPAddon extends JavaPlugin {
         this.saveDefaultConfig();
         readClaimsIntoMemory();
         readDatesIntoMemory();
+
+        Datastore.initialize();
 
         File nameFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json");
         if(!nameFile.exists()){
