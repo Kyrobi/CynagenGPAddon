@@ -9,10 +9,8 @@ import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsTrust;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Utils;
-import me.ryanhamshire.GPFlags.FlagManager;
-import me.ryanhamshire.GPFlags.GPFlags;
-import me.ryanhamshire.GPFlags.flags.FlagDefinition;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -36,6 +34,7 @@ import java.util.function.Consumer;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
 public class NoPlayerEnter implements Listener {
@@ -118,22 +117,10 @@ public class NoPlayerEnter implements Listener {
             } else {
 
                 Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-                FlagManager manager = GPFlags.getInstance().getFlagManager();
-                FlagDefinition flag = manager.getFlagDefinitionByName("NoEnterPlayer");
+                ClaimData claimData = myDataStore.getOrDefault(claim.getID(), new ClaimData(claimID, player));
 
-                // If the flag doesn't exist prior, make one and add the player
-                if (manager.getFlag(claim, "NoEnterPlayer") == null) {
-                    manager.setFlag(claim.getID().toString(), flag, true, message);
-                    manager.save();
-                } else {
-                    String[] blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
-                    List<String> list = new ArrayList<>(Arrays.asList(blockedMembers));
-                    list.add(onlinePlayerExact.getName());
-                    String[] updatedBlockedMembers = list.toArray(new String[0]);
+                claimData.getNoEnterPlayer().add(onlinePlayerExact.getUniqueId().toString());
 
-                    manager.setFlag(claim.getID().toString(), flag, true, updatedBlockedMembers);
-                    manager.save();
-                }
                 player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
             }
         });

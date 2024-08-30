@@ -12,7 +12,7 @@ public class Datastore {
 
     private static String DB_PATH;
 
-    public static HashMap<Integer, ClaimData> myDataStore = new HashMap<>();
+    public static HashMap<Long, ClaimData> myDataStore = new HashMap<>();
 
     public static void initialize() {
         File file = new File("");
@@ -61,7 +61,7 @@ public class Datastore {
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                int claimID = rs.getInt("claimID");
+                long claimID = rs.getLong("claimID");
                 long creationTime = rs.getLong("creationTime");
                 String creator = rs.getString("creator");
                 String creatorUUID = rs.getString("creatorUUID");
@@ -96,9 +96,9 @@ public class Datastore {
             connection.setAutoCommit(false); // Start transaction
 
             int count = 0;
-            for (Map.Entry<Integer, ClaimData> entry : myDataStore.entrySet()) {
+            for (Map.Entry<Long, ClaimData> entry : myDataStore.entrySet()) {
                 // Set parameters and add to batch
-                pstmt.setInt(1, entry.getKey());
+                pstmt.setLong(1, entry.getKey());
                 pstmt.setLong(2, entry.getValue().getCreationDate());
                 pstmt.setString(3, entry.getValue().getCreator());
                 pstmt.setString(4, entry.getValue().getCreatorUUID());
@@ -121,6 +121,7 @@ public class Datastore {
         } catch (SQLException e) {
             Bukkit.getLogger().severe("Error saving data: " + e.getMessage());
         }
-    }
 
+        myDataStore.clear();
+    }
 }

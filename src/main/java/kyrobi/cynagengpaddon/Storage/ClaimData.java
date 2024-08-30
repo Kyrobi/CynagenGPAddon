@@ -2,26 +2,25 @@ package kyrobi.cynagengpaddon.Storage;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.StringJoiner;
+import java.util.*;
 
 @Getter
 @Setter
 public class ClaimData {
 
-    int claimID = 0;
+    long claimID = 0;
     long creationDate = 0;
     String creator = "";
     String creatorUUID = "";
     String claimName = "";
     boolean allowPvP = false;
-    ArrayList<String> noEnterPlayer = new ArrayList<>();
+    Set<String> noEnterPlayer = new HashSet<>();
     String enterMessage = "";
     String exitMessage = "";
 
-    public ClaimData(int claimID, long creationDate, String creator, String creatorUUID, String claimName, boolean allowPvP, String noEnterPlayer, String enterMessage, String exitMessage){
+    public ClaimData(long claimID, long creationDate, String creator, String creatorUUID, String claimName, boolean allowPvP, String noEnterPlayer, String enterMessage, String exitMessage){
         this.claimID = claimID;
         this.creationDate = creationDate;
 
@@ -51,7 +50,15 @@ public class ClaimData {
         }
     }
 
-    public String getNoEnterPlayerString(){
+    public ClaimData(long claimID, Player claimCreator){
+        this.claimID = claimID;
+        this.creationDate = System.currentTimeMillis();
+
+        this.creator = claimCreator.getName();
+        this.creatorUUID = claimCreator.getUniqueId().toString();
+    }
+
+    String getNoEnterPlayerString(){
         StringJoiner joiner = new StringJoiner(",");
 
         for(String s: noEnterPlayer){
