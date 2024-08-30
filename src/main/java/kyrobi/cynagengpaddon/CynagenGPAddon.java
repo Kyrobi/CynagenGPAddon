@@ -8,21 +8,21 @@ import kyrobi.cynagengpaddon.Listeners.ShovelHover;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
+import kyrobi.cynagengpaddon.Storage.Datastore;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.event.block.NotePlayEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
-import static kyrobi.cynagengpaddon.Listeners.ClaimVisualizer.*;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 import static kyrobi.cynagengpaddon.Utils.*;
 
 public final class CynagenGPAddon extends JavaPlugin {
@@ -43,6 +43,12 @@ public final class CynagenGPAddon extends JavaPlugin {
         readDatesIntoMemory();
 
         Datastore.initialize();
+//        for (Map.Entry<Integer, ClaimData> entry : myDataStore.entrySet()) {
+//            Integer claimID = entry.getKey();
+//            ClaimData claimData = entry.getValue();
+//
+//            System.out.println("ClaimID " + claimID);
+//        }
 
         File nameFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json");
         if(!nameFile.exists()){
@@ -92,6 +98,6 @@ public final class CynagenGPAddon extends JavaPlugin {
     public void onDisable() {
         writeClaimsToDisk();
         writeDatesToDisk();
-
+        Datastore.uninitialize();
     }
 }
