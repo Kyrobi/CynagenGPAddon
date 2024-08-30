@@ -9,6 +9,7 @@ import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
@@ -31,6 +32,7 @@ import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamin
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage.showClaimMessageMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter.claimsNoPlayerEnterOption;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 
 public class ClaimsFlags {
     /*
@@ -47,7 +49,7 @@ public class ClaimsFlags {
     public static void showClaimFlags(Player player, long claimID){
 
         Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-        FlagManager manager = GPFlags.getInstance().getFlagManager();
+        ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
 
 
 
@@ -79,12 +81,7 @@ public class ClaimsFlags {
         ArrayList<String> pvpButtonLore = new ArrayList<>();
         pvpButtonLore.add(ChatColor.GRAY + "▸ Toggle PvP in your claim ");
         pvpButtonLore.add("");
-        boolean pvpEnabled;
-        if(manager.getFlag(claim, "AllowPvP") != null){
-            pvpEnabled = manager.getFlag(claim, "AllowPvP").getSet();
-        } else {
-            pvpEnabled = false;
-        }
+        boolean pvpEnabled = claimData.isAllowPvP();
 
         if(pvpEnabled){
             pvpButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.GREEN + " PvP Enabled");
@@ -96,16 +93,14 @@ public class ClaimsFlags {
         navigation.addItem(new GuiItem(pvpButton, event -> {
 
             event.setCancelled(true);
-            FlagDefinition flag = manager.getFlagDefinitionByName("AllowPvP");
 
             if(!pvpEnabled){
-                manager.setFlag(claim.getID().toString(), flag, true, "asd");
+                claimData.setAllowPvP(true);
             } else {
-                manager.setFlag(claim.getID().toString(), flag, false, "asd");
+                claimData.setAllowPvP(false);
                 // manager.unSetFlag(claim, flag, false);
             }
 
-            manager.save();
             showClaimFlags(player, claimID);
 
         }), 2, 2 );

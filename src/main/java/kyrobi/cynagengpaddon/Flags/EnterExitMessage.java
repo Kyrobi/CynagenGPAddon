@@ -40,6 +40,9 @@ public class EnterExitMessage implements Listener {
             ClaimData claimData = myDataStore.get(toClaim.getID());
             String enterMessage = claimData.getEnterMessage();
 
+            if(enterMessage.equals("")){
+                return;
+            }
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', enterMessage));
         }
 
@@ -47,9 +50,12 @@ public class EnterExitMessage implements Listener {
         // When a player leaves a claim
         if(fromClaim != null && toClaim == null){
             ClaimData claimData = myDataStore.get(fromClaim.getID());
-            String enterMessage = claimData.getExitMessage();
+            String exitMessage = claimData.getExitMessage();
 
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', enterMessage));
+            if(exitMessage.equals("")){
+                return;
+            }
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', exitMessage));
         }
     }
 }

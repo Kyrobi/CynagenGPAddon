@@ -209,20 +209,18 @@ public class NoPlayerEnter implements Listener {
             return;
         }
 
-        FlagManager manager = GPFlags.getInstance().getFlagManager();
+        ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
+        Set<String> blockedMembers = claimData.getNoEnterPlayer();
 
         // boolean noEnterPlayerEnabled = manager.getFlag(claim, "NoEnterPlayer").getSet();
-        String[] blockedMembers = new String[1];
-        if(manager.getFlag(claim, "NoEnterPlayer") == null){
+        if(blockedMembers.isEmpty()){
             /*
             Do nothing. Add nothing to the menu.
              */
         } else {
-            blockedMembers = manager.getFlag(claim, "NoEnterPlayer").getParametersArray();
 
             for(String i: blockedMembers){
-                System.out.println(UUID.fromString(i.replaceAll(",", "")));
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(i.replaceAll(",", "")));
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(i));
 
                 String formattingPlayerName = ChatColor.RESET + "" + ChatColor.YELLOW + offlinePlayer.getName();
                 ItemStack playerIcon = new ItemStack(Material.PLAYER_HEAD);
@@ -250,7 +248,6 @@ public class NoPlayerEnter implements Listener {
         ChestGui gui = new ChestGui(6, "Blocked Members");
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 5);
         pages.populateWithItemStacks(allMembers);
-        String[] finalBlockedMembers = blockedMembers;
         pages.setOnClick(e -> {
             e.setCancelled(true);
             if(e.getCurrentItem() == null){
@@ -258,24 +255,13 @@ public class NoPlayerEnter implements Listener {
             }
 
             OfflinePlayer playerToRemove = Bukkit.getOfflinePlayer(e.getCurrentItem().getItemMeta().getLore().get(0));
-            FlagDefinition flag = manager.getFlagDefinitionByName("NoEnterPlayer");
 
-            List<String> list = new ArrayList<>(Arrays.asList(finalBlockedMembers));
-
-
-            list.remove(playerToRemove.getUniqueId().toString());
+            blockedMembers.remove(playerToRemove.getUniqueId().toString());
             // Everyone has been removed from this claim. If so, just remove the flag entirely
-            if(list.size() == 0){
-                manager.unSetFlag(claim, flag);
-                manager.save();
+            if(blockedMembers.isEmpty()){
                 claimsNoPlayerEnterMemberList(player, claimID);
                 return;
             }
-
-            // System.out.println("NewStrings: " + list.toArray(new String[0])[0]);
-            String[] updatedBlockedMembers = list.toArray(new String[list.size()]);
-            manager.setFlag(claim.getID().toString(), flag, true, updatedBlockedMembers);
-            manager.save();
 
             claimsNoPlayerEnterMemberList(player, claimID);
         });

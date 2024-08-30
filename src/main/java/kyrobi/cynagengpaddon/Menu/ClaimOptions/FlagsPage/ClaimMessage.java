@@ -6,6 +6,8 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
+import kyrobi.cynagengpaddon.Storage.Datastore;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -28,6 +30,7 @@ import java.util.function.Consumer;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter.claimsNoPlayerEnterOption;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 import static org.bukkit.plugin.java.JavaPlugin.getPlugin;
 
 public class ClaimMessage implements Listener {
@@ -43,7 +46,7 @@ public class ClaimMessage implements Listener {
 
     public static void showClaimMessageMenu(Player player, long claimID){
         Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-        FlagManager manager = GPFlags.getInstance().getFlagManager();
+        ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
 
 
         ChestGui gui = new ChestGui(6, "Claim Flags");
@@ -70,26 +73,23 @@ public class ClaimMessage implements Listener {
         /*
         Set claim enter message
          */
-        FlagDefinition enterFlag = manager.getFlagDefinitionByName("EnterMessage");
+
 
         ArrayList<String> setClaimEnterMessageButtonLore = new ArrayList<>();
         setClaimEnterMessageButtonLore.add(ChatColor.GRAY + "Set message to show when a player enters your claim");
         setClaimEnterMessageButtonLore.add(" ");
         setClaimEnterMessageButtonLore.add(ChatColor.GRAY + "▸ Current enter message: ");
 
-        if(manager.getFlag(claim, enterFlag) == null){
+        if(claimData.getEnterMessage() == null){
             setClaimEnterMessageButtonLore.add(ChatColor.WHITE + "None");
-
         }
-        else if (manager.getFlag(claim, enterFlag).getParametersArray().length == 0) {
+
+        else if (claimData.getEnterMessage().isEmpty()) {
             setClaimEnterMessageButtonLore.add(ChatColor.WHITE + "None");
         }
         else {
-            StringBuilder message = new StringBuilder();
-            for(String i: manager.getFlag(claim, enterFlag).getParametersArray()){
-                message.append(i + " ");
-            }
-            setClaimEnterMessageButtonLore.add(ChatColor.WHITE + message.toString());
+            String message = claimData.getEnterMessage();
+            setClaimEnterMessageButtonLore.add(ChatColor.WHITE + message);
         }
 
         ItemStack setClaimEnterMessageButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Set claim enter message", setClaimEnterMessageButtonLore);
@@ -102,25 +102,21 @@ public class ClaimMessage implements Listener {
         /*
         Set claim leave message
          */
-        FlagDefinition exitFlag = manager.getFlagDefinitionByName("ExitMessage");
 
         ArrayList<String> setClaimLeaveMessageButtonLore = new ArrayList<>();
         setClaimLeaveMessageButtonLore.add(ChatColor.GRAY + "Set message to show when a player exists your claim");
         setClaimLeaveMessageButtonLore.add(" ");
         setClaimLeaveMessageButtonLore.add(ChatColor.GRAY + "▸ Current exist message: ");
 
-        if(manager.getFlag(claim, exitFlag) == null){
+        if(claimData.getExitMessage() == null){
             setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + "None");
         }
-        else if (manager.getFlag(claim, exitFlag).getParametersArray().length == 0) {
+        else if (claimData.getExitMessage().isEmpty()) {
             setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + "None");
         }
         else {
-            StringBuilder message = new StringBuilder();
-            for(String i: manager.getFlag(claim, exitFlag).getParametersArray()){
-                message.append(i + " ");
-            }
-            setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + message.toString());
+            String message = claimData.getEnterMessage();
+            setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + message);
         }
 
         ItemStack setClaimLeaveMessageButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Set claim leave message", setClaimLeaveMessageButtonLore);
@@ -166,12 +162,9 @@ public class ClaimMessage implements Listener {
                 return;
             }
 
-            Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-            FlagManager manager = GPFlags.getInstance().getFlagManager();
-            FlagDefinition flag = manager.getFlagDefinitionByName("EnterMessage");
-            manager.setFlag(claim.getID().toString(), flag, true, message);
+            ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
+            claimData.setEnterMessage(message);
             player.sendMessage(ChatColor.GREEN + "Claim enter message set to: " + ChatColor.WHITE + message);
-            manager.save();
         });
         player.closeInventory();
     }
@@ -184,33 +177,25 @@ public class ClaimMessage implements Listener {
                 return;
             }
 
-            Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-            FlagManager manager = GPFlags.getInstance().getFlagManager();
-            FlagDefinition flag = manager.getFlagDefinitionByName("ExitMessage");
-            manager.setFlag(claim.getID().toString(), flag, true, message);
+            ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
+            claimData.setExitMessage(message);
             player.sendMessage(ChatColor.GREEN + "Claim leave message set to: " + ChatColor.WHITE + message);
-            manager.save();
+
         });
         player.closeInventory();
     }
 
     public static void unsetClaimEnterMessage(Player player, InventoryClickEvent invEvent, long claimID){
-        Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-        FlagManager manager = GPFlags.getInstance().getFlagManager();
-        FlagDefinition flag = manager.getFlagDefinitionByName("EnterMessage");
-        manager.unSetFlag(claim, flag);
+        ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
+        claimData.setEnterMessage("");
         player.sendMessage(ChatColor.GREEN + "Cleared enter message");
-        manager.save();
         showClaimMessageMenu(player, claimID);
     }
 
     public static void unsetClaimLeaveMessage(Player player, InventoryClickEvent invEvent, long claimID){
-        Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-        FlagManager manager = GPFlags.getInstance().getFlagManager();
-        FlagDefinition flag = manager.getFlagDefinitionByName("ExitMessage");
-        manager.unSetFlag(claim, flag);
-        player.sendMessage(ChatColor.GREEN + "Cleared exist message");
-        manager.save();
+        ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
+        claimData.setExitMessage("");
+        player.sendMessage(ChatColor.GREEN + "Cleared exit message");
         showClaimMessageMenu(player, claimID);
     }
 
