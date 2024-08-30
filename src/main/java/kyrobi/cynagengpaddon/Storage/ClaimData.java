@@ -10,6 +10,8 @@ import java.util.*;
 @Setter
 public class ClaimData {
 
+    private final String DELIMITER = "\n";
+
     long claimID = 0;
     long creationDate = 0;
     String creator = "";
@@ -37,7 +39,7 @@ public class ClaimData {
         this.allowPvP = allowPvP;
 
         if(noEnterPlayer != null){
-            String[] noEnterPlayers = noEnterPlayer.split(",");
+            String[] noEnterPlayers = noEnterPlayer.split(DELIMITER);
             this.noEnterPlayer.addAll(Arrays.asList(noEnterPlayers));
         }
 
@@ -62,7 +64,7 @@ public class ClaimData {
         StringBuilder stringBuilder = new StringBuilder();
 
         for(String s: noEnterPlayer){
-            stringBuilder.append(s + ",");
+            stringBuilder.append(s + DELIMITER);
         }
 
         return stringBuilder.toString();

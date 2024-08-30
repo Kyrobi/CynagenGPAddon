@@ -184,18 +184,6 @@ public class ClaimsFlags {
         }), 4, 3 );
 
 
-//        /*
-//        Flags option
-//         */
-//        ArrayList<String> flagsButtonLore = new ArrayList<>();
-//        flagsButtonLore.add(ChatColor.GRAY + "▸ Flags are optional settings that");
-//        ItemStack flagsButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Flags", flagsButtonLore);
-//        navigation.addItem(new GuiItem(flagsButton, event -> {
-//            event.setCancelled(true);
-//            claimsRenamingMenu((Player) event.getWhoClicked(), event, claimID);
-//
-//        }), 6, 2);
-
 
 
         gui.addPane(navigation);

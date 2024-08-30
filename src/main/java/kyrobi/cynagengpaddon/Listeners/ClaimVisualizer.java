@@ -71,23 +71,6 @@ public class ClaimVisualizer implements Listener {
         ArrayList<Claim> nearbyClaims = new ArrayList<>(e.getClaims());
 
 
-//        ArrayList<TextDisplay> textEntitiesList = new ArrayList<>();
-//        int tempCounter = 0;
-//        for(Claim i: nearbyClaims){
-//            System.out.println("Counter: " + tempCounter++);
-//            textEntitiesList.add(spawnTextEntity(i.getLesserBoundaryCorner().getWorld(), e.getPlayer()));
-//        }
-//
-//        AtomicInteger removeCounter = new AtomicInteger();
-//        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-//            for(TextDisplay i: textEntitiesList){
-//                System.out.println("Removing: " + removeCounter.getAndIncrement());
-//                i.remove();
-//            }
-//
-//        }, 20 * 20L);
-
-
         visualQueue.put(e.getPlayer().getName(),
                 new BukkitRunnable(){
                     int counter = 0;

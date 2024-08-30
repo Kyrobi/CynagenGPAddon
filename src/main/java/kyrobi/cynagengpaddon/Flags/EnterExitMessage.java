@@ -38,6 +38,9 @@ public class EnterExitMessage implements Listener {
         // When a player enters a claim
         if(toClaim != null && fromClaim == null){
             ClaimData claimData = myDataStore.get(toClaim.getID());
+            if(claimData == null){
+                return;
+            }
             String enterMessage = claimData.getEnterMessage();
 
             if(enterMessage.equals("")){
@@ -50,6 +53,9 @@ public class EnterExitMessage implements Listener {
         // When a player leaves a claim
         if(fromClaim != null && toClaim == null){
             ClaimData claimData = myDataStore.get(fromClaim.getID());
+            if(claimData == null){
+                return;
+            }
             String exitMessage = claimData.getExitMessage();
 
             if(exitMessage.equals("")){
