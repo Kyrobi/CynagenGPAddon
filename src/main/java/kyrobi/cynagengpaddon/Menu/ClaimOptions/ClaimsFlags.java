@@ -96,11 +96,14 @@ public class ClaimsFlags {
 
             if(!pvpEnabled){
                 claimData.setAllowPvP(true);
+                System.out.println("Setting to true");
             } else {
                 claimData.setAllowPvP(false);
+                System.out.println("Setting to false");
                 // manager.unSetFlag(claim, flag, false);
             }
 
+            myDataStore.put(claimID, claimData);
             showClaimFlags(player, claimID);
 
         }), 2, 2 );

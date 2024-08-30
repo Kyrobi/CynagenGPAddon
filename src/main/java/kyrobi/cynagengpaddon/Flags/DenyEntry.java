@@ -35,6 +35,9 @@ public class DenyEntry implements Listener {
         // Check if the player is moving from a non-claim area to a claim area
         if (toClaim != null) {
             ClaimData claimData = myDataStore.get(toClaim.getID());
+            if(claimData == null){
+                return;
+            }
             if(claimData.getNoEnterPlayer().contains(event.getPlayer().getUniqueId().toString())){
                 event.setCancelled(true);
                 player.sendMessage("You cannot enter this claim.");

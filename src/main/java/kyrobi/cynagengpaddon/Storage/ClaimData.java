@@ -59,12 +59,12 @@ public class ClaimData {
     }
 
     String getNoEnterPlayerString(){
-        StringJoiner joiner = new StringJoiner(",");
+        StringBuilder stringBuilder = new StringBuilder();
 
         for(String s: noEnterPlayer){
-            joiner.add(s);
+            stringBuilder.append(s + ",");
         }
 
-        return joiner.toString();
+        return stringBuilder.toString();
     }
 }

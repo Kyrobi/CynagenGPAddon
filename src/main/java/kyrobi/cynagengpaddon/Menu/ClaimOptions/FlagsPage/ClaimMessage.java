@@ -89,7 +89,7 @@ public class ClaimMessage implements Listener {
         }
         else {
             String message = claimData.getEnterMessage();
-            setClaimEnterMessageButtonLore.add(ChatColor.WHITE + message);
+            setClaimEnterMessageButtonLore.add(ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', message));
         }
 
         ItemStack setClaimEnterMessageButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Set claim enter message", setClaimEnterMessageButtonLore);
@@ -116,7 +116,7 @@ public class ClaimMessage implements Listener {
         }
         else {
             String message = claimData.getEnterMessage();
-            setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + message);
+            setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', message));
         }
 
         ItemStack setClaimLeaveMessageButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Set claim leave message", setClaimLeaveMessageButtonLore);
@@ -164,7 +164,8 @@ public class ClaimMessage implements Listener {
 
             ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
             claimData.setEnterMessage(message);
-            player.sendMessage(ChatColor.GREEN + "Claim enter message set to: " + ChatColor.WHITE + message);
+            myDataStore.put(claimID, claimData);
+            player.sendMessage(ChatColor.GREEN + "Claim enter message set to: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', message));
         });
         player.closeInventory();
     }
@@ -179,7 +180,8 @@ public class ClaimMessage implements Listener {
 
             ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
             claimData.setExitMessage(message);
-            player.sendMessage(ChatColor.GREEN + "Claim leave message set to: " + ChatColor.WHITE + message);
+            myDataStore.put(claimID, claimData);
+            player.sendMessage(ChatColor.GREEN + "Claim leave message set to: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', message));
 
         });
         player.closeInventory();
@@ -189,6 +191,7 @@ public class ClaimMessage implements Listener {
         ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
         claimData.setEnterMessage("");
         player.sendMessage(ChatColor.GREEN + "Cleared enter message");
+        myDataStore.put(claimID, claimData);
         showClaimMessageMenu(player, claimID);
     }
 
@@ -196,6 +199,7 @@ public class ClaimMessage implements Listener {
         ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
         claimData.setExitMessage("");
         player.sendMessage(ChatColor.GREEN + "Cleared exit message");
+        myDataStore.put(claimID, claimData);
         showClaimMessageMenu(player, claimID);
     }
 

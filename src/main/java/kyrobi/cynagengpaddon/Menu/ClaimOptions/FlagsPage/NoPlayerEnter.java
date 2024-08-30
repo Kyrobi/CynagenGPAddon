@@ -120,6 +120,8 @@ public class NoPlayerEnter implements Listener {
                 ClaimData claimData = myDataStore.getOrDefault(claim.getID(), new ClaimData(claimID, player));
 
                 claimData.getNoEnterPlayer().add(onlinePlayerExact.getUniqueId().toString());
+                System.out.println("Adding " + onlinePlayerExact.getUniqueId().toString());
+                myDataStore.put(claimID, claimData);
 
                 player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
             }
@@ -220,6 +222,7 @@ public class NoPlayerEnter implements Listener {
         } else {
 
             for(String i: blockedMembers){
+                System.out.println("Trying to convert: [" + i + "]");
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(i));
 
                 String formattingPlayerName = ChatColor.RESET + "" + ChatColor.YELLOW + offlinePlayer.getName();
