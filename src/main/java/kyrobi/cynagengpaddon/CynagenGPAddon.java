@@ -32,18 +32,9 @@ public final class CynagenGPAddon extends JavaPlugin {
 
     public static CynagenGPAddon plugin;
 
-    static File dbFile = new File("");
-    public static String claimNamesFile = String.valueOf(
-            new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json"));
-
-    public static String claimDatesFile = String.valueOf(
-            new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "dates.json"));
-
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
-        readClaimsIntoMemory();
-        readDatesIntoMemory();
 
         Datastore.initialize();
 //        for (Map.Entry<Integer, ClaimData> entry : myDataStore.entrySet()) {
@@ -53,33 +44,6 @@ public final class CynagenGPAddon extends JavaPlugin {
 //            System.out.println("ClaimID " + claimID);
 //        }
 
-        File nameFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "name.json");
-        if(!nameFile.exists()){
-            try {
-                nameFile.createNewFile(); // if file already exists will do nothing
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                FileOutputStream oFile = new FileOutputStream(nameFile, false);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        File dateFile = new File(dbFile.getAbsolutePath() + File.separator + "plugins" + File.separator + "CynagenGPAddon" + File.separator + "dates.json");
-        if(!dateFile.exists()){
-            try {
-                dateFile.createNewFile(); // if file already exists will do nothing
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                FileOutputStream oFile = new FileOutputStream(dateFile, false);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
 
         Bukkit.getConsoleSender().sendMessage("CynagenGPAddon");
 
@@ -106,8 +70,6 @@ public final class CynagenGPAddon extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        writeClaimsToDisk();
-        writeDatesToDisk();
         Datastore.uninitialize();
     }
 }

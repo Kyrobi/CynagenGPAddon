@@ -17,8 +17,6 @@ import java.util.HashMap;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
-import static kyrobi.cynagengpaddon.Utils.claimsNameCache;
-import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
 public class Claims implements CommandExecutor {
 

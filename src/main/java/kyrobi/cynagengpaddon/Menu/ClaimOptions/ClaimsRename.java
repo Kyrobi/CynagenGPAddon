@@ -4,6 +4,7 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.AnvilGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Bukkit;
@@ -21,7 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static kyrobi.cynagengpaddon.Utils.setClaimName;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 
 public class ClaimsRename implements Listener {
 
@@ -34,20 +35,26 @@ public class ClaimsRename implements Listener {
 
     public static void claimsRenamingMenu(Player player, InventoryClickEvent invClick, long claimID){
 
+        ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
+
         player.sendMessage(ChatColor.GREEN + "Enter a name for the claim: ");
         chatInputCallbacks.put(player.getUniqueId(), message -> {
             if(message.length() > 16){
                 player.sendMessage(ChatColor.RED + "Names cannot be over 16 characters. You had " + message.length() + " characters");
                 return;
             }
+            else {
+                if(message.equals("")){
+                    claimData.setClaimName("No name");
+                    player.sendMessage(ChatColor.RED + "Warning: Name cannot contain special characters or be empty.");
+                } else{
+                    claimData.setClaimName(message);
+                    player.sendMessage(ChatColor.GREEN + "Claim renamed to: " + ChatColor.GRAY + ChatColor.translateAlternateColorCodes('&', message));
+                }
 
-            if(message.equals("")){
-                setClaimName(claimID, "No name");
-                player.sendMessage(ChatColor.RED + "Warning: Name cannot contain special characters or be empty.");
-            } else{
-                setClaimName(claimID, message);
-                player.sendMessage(ChatColor.GREEN + "Claim renamed to: " + ChatColor.GRAY + message);
+                myDataStore.put(claimID, claimData);
             }
+
 
         });
         player.closeInventory();
@@ -111,14 +118,14 @@ public class ClaimsRename implements Listener {
         UUID playerUUID = player.getUniqueId();
 
         if (chatInputCallbacks.containsKey(playerUUID)) {
-            String filteredString = event.getMessage().replaceAll("§[a-z]", "").trim();
-            System.out.println("MEESSAGE: " + filteredString);
+            // String filteredString = event.getMessage().replaceAll("§[a-z]", "").trim();
+            // System.out.println("MEESSAGE: " + filteredString);
             event.setCancelled(true);
 
             Consumer<String> callback = chatInputCallbacks.get(playerUUID);
             chatInputCallbacks.remove(playerUUID);
 
-            callback.accept(filteredString);
+            callback.accept(event.getMessage());
         }
     }
 }

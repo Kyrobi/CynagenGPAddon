@@ -35,7 +35,6 @@ import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
 import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
-import static kyrobi.cynagengpaddon.Utils.setClaimName;
 
 public class NoPlayerEnter implements Listener {
     private static HashMap<String, String> nameCache = new HashMap<>();

@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
-import static kyrobi.cynagengpaddon.Utils.setClaimDate;
 
 public class ClaimCreate implements Listener {
 
@@ -21,11 +20,13 @@ public class ClaimCreate implements Listener {
 
     @EventHandler
     public void onClaimCreate(ClaimCreatedEvent e){
-        setClaimDate(e.getClaim().getID());
 
         if(!myDataStore.containsKey(e.getClaim().getID())){
             ClaimData claimData = new ClaimData(e.getClaim().getID(), (Player) e.getCreator());
+            System.out.println("Does not contain");
             myDataStore.put(e.getClaim().getID(), claimData);
         }
+
+        System.out.println("Does contain");
     }
 }

@@ -10,6 +10,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
 import com.google.gson.internal.bind.util.ISO8601Utils;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimsOption.claimsOptionMenu;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 import static kyrobi.cynagengpaddon.Utils.*;
 import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 
@@ -73,7 +75,9 @@ public class ClaimsList {
         else if(sort_type == Sort.ALPHABETICAL){
             ListMultimap<String, Claim> sortedClaims = ArrayListMultimap.create();
             for(Claim i: playerData.getClaims()){
-                sortedClaims.put(getClaimName(i.getID()), i);
+                ClaimData claimData = myDataStore.getOrDefault(i.getID(), new ClaimData(i.getID(), player));
+                sortedClaims.put(claimData.getClaimName(), i);
+                myDataStore.put(i.getID(), claimData);
             }
 
             playerClaims.clear();
@@ -113,7 +117,8 @@ public class ClaimsList {
 
             // Change the lore and name of the object added
             // long startTime = System.nanoTime();
-            itemMeta.setDisplayName(ChatColor.GOLD + Utils.getClaimName(i.getID()));
+            ClaimData claimData = myDataStore.getOrDefault(i.getID(), new ClaimData(i.getID(), player));
+            itemMeta.setDisplayName(ChatColor.GOLD + ChatColor.translateAlternateColorCodes('&', claimData.getClaimName()));
 //            long endTime = System.nanoTime();
 //            long duration = (endTime - startTime) / 1000000;
 //            long durationN = (endTime - startTime);
@@ -142,7 +147,7 @@ public class ClaimsList {
             lore.add(ChatColor.GRAY + "▸ Area: " + ChatColor.WHITE + i.getArea() + ChatColor.GRAY + " blocks ");
             lore.add(ChatColor.GRAY + "    (" + ChatColor.WHITE + width + ChatColor.GRAY + "x" + ChatColor.WHITE + length + ChatColor.GRAY + ")");
             lore.add(ChatColor.GRAY + "▸ Creation date: ");
-            lore.add(ChatColor.WHITE + "    " + getClaimDate(i.getID()));
+            lore.add(ChatColor.WHITE + "    " + longToDate(claimData.getCreationDate()));
 
             /*
             Enchant the block if the player is standing inside that claim to make it easier to see
@@ -169,6 +174,7 @@ public class ClaimsList {
             }
 
             claimsCounter++;
+            myDataStore.put(i.getID(), claimData);
         }
 
         ChestGui gui = new ChestGui(6, "Your claims");
