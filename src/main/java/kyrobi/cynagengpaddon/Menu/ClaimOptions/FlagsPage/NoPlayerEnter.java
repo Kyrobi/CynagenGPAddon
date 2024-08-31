@@ -23,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -123,6 +124,7 @@ public class NoPlayerEnter implements Listener {
                 myDataStore.put(claimID, claimData);
 
                 player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
+
             }
         });
         player.closeInventory();
@@ -222,8 +224,8 @@ public class NoPlayerEnter implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onChat(PlayerChatEvent event) {
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
 

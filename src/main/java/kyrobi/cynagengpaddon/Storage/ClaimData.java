@@ -10,7 +10,7 @@ import java.util.*;
 @Setter
 public class ClaimData {
 
-    private final String DELIMITER = "\n";
+    private final String DELIMITER = " ";
 
     long claimID = 0;
     long creationDate = 0;
