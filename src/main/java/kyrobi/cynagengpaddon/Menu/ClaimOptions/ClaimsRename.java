@@ -40,8 +40,8 @@ public class ClaimsRename implements Listener {
 
         player.sendMessage(ChatColor.GREEN + "Enter a name for the claim: ");
         chatInputCallbacks.put(player.getUniqueId(), message -> {
-            if(message.length() > 16){
-                player.sendMessage(ChatColor.RED + "Names cannot be over 16 characters. You had " + message.length() + " characters");
+            if(message.length() > 32){
+                player.sendMessage(ChatColor.RED + "Names cannot be over 32 characters. You had " + message.length() + " characters");
                 return;
             }
             else {

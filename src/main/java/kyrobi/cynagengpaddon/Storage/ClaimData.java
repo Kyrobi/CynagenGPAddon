@@ -16,7 +16,7 @@ public class ClaimData {
     long creationDate = 0;
     String creator = "";
     String creatorUUID = "";
-    String claimName = "";
+    String claimName = "[No Name]";
     boolean allowPvP = false;
     Set<String> noEnterPlayer = new HashSet<>();
     String enterMessage = "";
@@ -33,7 +33,11 @@ public class ClaimData {
             this.creatorUUID = creatorUUID;
         }
         if(claimName != null){
-            this.claimName = claimName;
+            if(claimName.isEmpty()){
+                this.claimName = "[No Name]";
+            } else {
+                this.claimName = claimName;
+            }
         }
 
         this.allowPvP = allowPvP;
