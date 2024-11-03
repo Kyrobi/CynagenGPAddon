@@ -256,7 +256,7 @@ public class ClaimsList {
         exitButtonLore.add(ChatColor.GRAY + "▸ From playtime: " + ChatColor.WHITE + playerData.getAccruedClaimBlocks());
         exitButtonLore.add(ChatColor.GRAY + "▸ From voting/admin: " + ChatColor.WHITE + playerData.getBonusClaimBlocks());
         exitButtonLore.add(ChatColor.GRAY + "▸ Total: " + ChatColor.WHITE + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks()));
-        ItemStack exitButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED+"Exit", exitButtonLore);
+        ItemStack exitButton = Utils.itemGenerator(Material.WRITTEN_BOOK, ChatColor.GOLD+"Stats", exitButtonLore);
         navigation.addItem(new GuiItem(exitButton, event ->
 
                 event.getWhoClicked().closeInventory()), 4, 0
