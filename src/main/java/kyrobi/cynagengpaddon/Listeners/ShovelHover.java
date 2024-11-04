@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static me.ryanhamshire.GriefPrevention.DataStore.getChunkHash;
 
@@ -37,23 +38,47 @@ public class ShovelHover implements Listener {
         String filler = ChatColor.RESET + "" + ChatColor.GRAY + "==============";
         if (item != null && item.getType() == Material.GOLDEN_SHOVEL) {
 
-            List<Chunk> chunksAroundPlayer = getChunksAroundPlayer(player, Bukkit.getViewDistance());
-            Set<Claim> claims = new HashSet<>();
 
-            for(Chunk chunk: chunksAroundPlayer){
-                Collection<Claim> chunkClaims = GriefPrevention.instance.dataStore.getClaims(chunk.getX(), chunk.getZ());
-                claims.addAll(chunkClaims);
-            }
+            // Call the asynchronous method and handle the result when it completes
+            // Wait for all chunks to be loaded
+            // Get the list of futures for all chunks around the player
+            List<CompletableFuture<Chunk>> chunkFutures = getChunksAroundPlayer(player, Bukkit.getViewDistance());
 
-            ClaimInspectionEvent claimInspectionEvent = new ClaimInspectionEvent(e.getPlayer(), null, claims, true);
-            Bukkit.getServer().getPluginManager().callEvent(claimInspectionEvent);
-            player.sendMessage(filler + "\n \n \n" +ChatColor.GREEN + "View all your claims with " + ChatColor.GOLD + "/claims" + ChatColor.GREEN + "!\n"+ChatColor.GRAY + "(You can also teleport to them!)" + "\n \n \n" + filler);
+            CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0])).thenAccept(v -> {
+                Set<Claim> claims = new HashSet<>();
+
+                // Process each loaded chunk
+                for (CompletableFuture<Chunk> futureChunk : chunkFutures) {
+                    Chunk chunk = futureChunk.join();  // Get the loaded chunk
+
+                    // Fetch claims for each chunk and add them to the set
+                    Collection<Claim> chunkClaims = GriefPrevention.instance.dataStore.getClaims(chunk.getX(), chunk.getZ());
+                    claims.addAll(chunkClaims);
+                }
+
+                // Fire the ClaimInspectionEvent with the found claims
+                ClaimInspectionEvent claimInspectionEvent = new ClaimInspectionEvent(e.getPlayer(), null, claims, true);
+                Bukkit.getServer().getPluginManager().callEvent(claimInspectionEvent);
+                player.sendMessage(filler + "\n \n \n" + ChatColor.GREEN + "View all your claims with " + ChatColor.GOLD + "/claims" + ChatColor.GREEN + "!\n" + ChatColor.GRAY + "(You can also teleport to them!)" + "\n \n \n" + filler);
+            });
+
+//            List<Chunk> chunksAroundPlayer = getChunksAroundPlayer(player, Bukkit.getViewDistance());
+//            Set<Claim> claims = new HashSet<>();
+//
+//            for(Chunk chunk: chunksAroundPlayer){
+//                Collection<Claim> chunkClaims = GriefPrevention.instance.dataStore.getClaims(chunk.getX(), chunk.getZ());
+//                claims.addAll(chunkClaims);
+//            }
+//
+//            ClaimInspectionEvent claimInspectionEvent = new ClaimInspectionEvent(e.getPlayer(), null, claims, true);
+//            Bukkit.getServer().getPluginManager().callEvent(claimInspectionEvent);
+//            player.sendMessage(filler + "\n \n \n" +ChatColor.GREEN + "View all your claims with " + ChatColor.GOLD + "/claims" + ChatColor.GREEN + "!\n"+ChatColor.GRAY + "(You can also teleport to them!)" + "\n \n \n" + filler);
 
         }
     }
 
-    public static List<Chunk> getChunksAroundPlayer(Player player, int radius) {
-        List<Chunk> chunks = new ArrayList<>();
+    public static List<CompletableFuture<Chunk>> getChunksAroundPlayer(Player player, int radius) {
+        List<CompletableFuture<Chunk>> chunkFutures = new ArrayList<>();
 
         // Get the player's current location
         Location playerLocation = player.getLocation();
@@ -69,15 +94,17 @@ public class ShovelHover implements Listener {
                 int chunkZ = playerChunkZ + z;
 
                 // Get the chunk at the specified coordinates
-                Chunk chunk = player.getWorld().getChunkAt(chunkX, chunkZ);
+                // Chunk chunk = player.getWorld().getChunkAt(chunkX, chunkZ);
+//                player.getWorld().getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk1 -> {
+//                   chunks.add(chunk1);
+//                });
 
-                // Add the chunk to the list
-                chunks.add(chunk);
+                // Add each chunk's CompletableFuture to the list
+                chunkFutures.add(player.getWorld().getChunkAtAsync(chunkX, chunkZ));
             }
         }
 
-        // Return the list of chunks
-        return chunks;
+        return chunkFutures;
     }
 
 }
