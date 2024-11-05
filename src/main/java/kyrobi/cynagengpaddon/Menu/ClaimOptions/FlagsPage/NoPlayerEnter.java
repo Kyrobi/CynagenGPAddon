@@ -152,6 +152,9 @@ public class NoPlayerEnter implements Listener {
 
             for(String i: blockedMembers){
                 System.out.println("Trying to convert: [" + i + "]");
+                if(i.isEmpty()){
+                    continue;
+                }
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(i));
 
                 String formattingPlayerName = ChatColor.RESET + "" + ChatColor.YELLOW + offlinePlayer.getName();
