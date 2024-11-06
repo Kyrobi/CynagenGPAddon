@@ -30,6 +30,7 @@ public class Datastore {
                 + "noEnterPlayer TEXT, "
                 + "enterMessage TEXT, "
                 + "exitMessage TEXT"
+                + "block TEXT"
                 + ");";
 
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
@@ -70,8 +71,9 @@ public class Datastore {
                 String noEnterPlayer = rs.getString("noEnterPlayer");
                 String enterMessage = rs.getString("enterMessage");
                 String exitMessage = rs.getString("exitMessage");
+                String block = rs.getString("block");
 
-                ClaimData claimData = new ClaimData(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, noEnterPlayer, enterMessage, exitMessage);
+                ClaimData claimData = new ClaimData(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, noEnterPlayer, enterMessage, exitMessage, block);
                 myDataStore.put(claimID, claimData);
             }
 
@@ -85,8 +87,8 @@ public class Datastore {
     public static void uninitialize() {
         Bukkit.getLogger().info("Uninitializing CynagenGPAddon Datastore ");
         String insertOrReplaceSQL = "INSERT OR REPLACE INTO claims "
-                + "(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, noEnterPlayer, enterMessage, exitMessage) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, noEnterPlayer, enterMessage, exitMessage, block) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         final int BATCH_SIZE = 1000;  // Adjust the batch size based on performance testing
 
@@ -107,6 +109,7 @@ public class Datastore {
                 pstmt.setString(7, entry.getValue().getNoEnterPlayerString());
                 pstmt.setString(8, entry.getValue().getEnterMessage());
                 pstmt.setString(9, entry.getValue().getExitMessage());
+                pstmt.setString(10, entry.getValue().getIconMaterialName());
                 pstmt.addBatch();
 
                 if (++count % BATCH_SIZE == 0) {

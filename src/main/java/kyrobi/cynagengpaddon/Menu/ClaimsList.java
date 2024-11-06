@@ -96,8 +96,13 @@ public class ClaimsList {
         List<ItemStack> allClaims = new ArrayList<>();
         int claimsCounter = 0;
         for(Claim i: playerClaims){
+            // System.out.println("Block data: " + myDataStore.get(i.getID()).getIconMaterialName());
+            Material userDefinedMat = Material.getMaterial(myDataStore.get(i.getID()).getIconMaterialName());
             ItemStack itemStack;
-            if(i.getLesserBoundaryCorner().getWorld().getEnvironment().equals(World.Environment.NORMAL)){
+            if(userDefinedMat != null){
+                itemStack = new ItemStack(userDefinedMat);
+            }
+            else if(i.getLesserBoundaryCorner().getWorld().getEnvironment().equals(World.Environment.NORMAL)){
                 itemStack = new ItemStack(Material.GRASS_BLOCK);
             }
 

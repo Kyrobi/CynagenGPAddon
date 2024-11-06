@@ -10,6 +10,7 @@ import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsTrust;
+import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Utils;
 import me.ryanhamshire.*;
 import me.ryanhamshire.GriefPrevention.Claim;
@@ -17,6 +18,9 @@ import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,10 +33,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static kyrobi.cynagengpaddon.CynagenGPAddon.getPluginInstance;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
 import static kyrobi.cynagengpaddon.Menu.ClaimsList.claimsListMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsMember.claimsMembersMenu;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename.claimsRenamingMenu;
+import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 
 public class ClaimsOption {
@@ -80,6 +86,52 @@ public class ClaimsOption {
             claimsRenamingMenu((Player) event.getWhoClicked(), event, claimID);
 
         }), 4, 2 );
+
+
+        /*
+        Renaming option
+         */
+        ArrayList<String> iconButtonLore = new ArrayList<>();
+        iconButtonLore.add(ChatColor.GRAY + "Modify your claim Icon");
+        ItemStack iconButton = Utils.itemGenerator(Material.PAINTING, ChatColor.GREEN + "Claim Icon", iconButtonLore);
+        navigation.addItem(new GuiItem(iconButton, event -> {
+
+            event.setCancelled(true);
+            player.closeInventory();
+
+            player.sendMessage(ChatColor.GREEN + "Enter the item name: ");
+            player.sendMessage(ChatColor.GRAY + "(Example: STONE, GRASS_BLOCK, LIGHT_BLUE_BANNER)");
+
+            // Register a one-time chat listener
+            Listener chatListener = new Listener() {
+                @EventHandler
+                public void onChat(AsyncPlayerChatEvent chatEvent) {
+                    // Check if the message is from the same player
+                    if (chatEvent.getPlayer().equals(player)) {
+                        chatEvent.setCancelled(true); // Cancel the message if desired
+
+                        String message = chatEvent.getMessage().toUpperCase();
+
+                        // Unregister this listener to avoid memory leaks
+                        AsyncPlayerChatEvent.getHandlerList().unregister(this);
+
+                        // Process the chat message here
+                        Material mat = Material.getMaterial(message);
+                        if(mat == null){
+                            player.sendMessage(ChatColor.RED + message + " is not a valid item.");
+                            return;
+                        } else {
+                            player.sendMessage(ChatColor.GREEN + "Changed claim icon to " + message);
+                            myDataStore.get(claimID).setIconMaterialName(message);
+                        }
+                    }
+                }
+            };
+
+            // Register the listener temporarily
+            Bukkit.getPluginManager().registerEvents(chatListener, getPluginInstance());
+
+        }), 6, 2 );
 
         /*
         Teleport option
@@ -141,19 +193,19 @@ public class ClaimsOption {
 
 
 
-        /*
-        View members option
-         */
-        ArrayList<String> membersButtonLore = new ArrayList<>();
-        membersButtonLore.add(ChatColor.GRAY + "Manage players in your claim");
-
-        ItemStack membersButton = Utils.itemGenerator(Material.PLAYER_HEAD, ChatColor.GREEN + "Members", membersButtonLore);
-        navigation.addItem(new GuiItem(membersButton, event -> {
-
-            event.setCancelled(true);
-            claimsMembersMenu((Player) event.getWhoClicked(), claimID);
-
-        }), 6, 2 );
+//        /*
+//        View members option
+//         */
+//        ArrayList<String> membersButtonLore = new ArrayList<>();
+//        membersButtonLore.add(ChatColor.GRAY + "Manage players in your claim");
+//
+//        ItemStack membersButton = Utils.itemGenerator(Material.PLAYER_HEAD, ChatColor.GREEN + "Members", membersButtonLore);
+//        navigation.addItem(new GuiItem(membersButton, event -> {
+//
+//            event.setCancelled(true);
+//            claimsMembersMenu((Player) event.getWhoClicked(), claimID);
+//
+//        }), 6, 2 );
 
 
         /*
@@ -171,7 +223,21 @@ public class ClaimsOption {
             event.setCancelled(true);
             showClaimFlags((Player) event.getWhoClicked(), claimID);
 
-        }), 4, 3 );
+        }), 3, 3 );
+
+        /*
+        View members option
+         */
+        ArrayList<String> membersButtonLore = new ArrayList<>();
+        membersButtonLore.add(ChatColor.GRAY + "Manage players in your claim");
+
+        ItemStack membersButton = Utils.itemGenerator(Material.PLAYER_HEAD, ChatColor.GREEN + "Members", membersButtonLore);
+        navigation.addItem(new GuiItem(membersButton, event -> {
+
+            event.setCancelled(true);
+            claimsMembersMenu((Player) event.getWhoClicked(), claimID);
+
+        }), 5, 3 );
 
         /*
         Delete claim option

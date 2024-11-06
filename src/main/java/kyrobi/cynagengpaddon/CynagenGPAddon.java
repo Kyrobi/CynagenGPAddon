@@ -34,6 +34,7 @@ public final class CynagenGPAddon extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        plugin = this;
         this.saveDefaultConfig();
 
         Datastore.initialize();
@@ -66,6 +67,10 @@ public final class CynagenGPAddon extends JavaPlugin {
 
          this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
          this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
+    }
+
+    public static CynagenGPAddon getPluginInstance(){
+        return plugin;
     }
 
     @Override

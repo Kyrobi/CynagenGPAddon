@@ -2,6 +2,7 @@ package kyrobi.cynagengpaddon.Storage;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -21,8 +22,9 @@ public class ClaimData {
     Set<String> noEnterPlayer = new HashSet<>();
     String enterMessage = "";
     String exitMessage = "";
+    String iconMaterialName = "";
 
-    public ClaimData(long claimID, long creationDate, String creator, String creatorUUID, String claimName, boolean allowPvP, String noEnterPlayer, String enterMessage, String exitMessage){
+    public ClaimData(long claimID, long creationDate, String creator, String creatorUUID, String claimName, boolean allowPvP, String noEnterPlayer, String enterMessage, String exitMessage, String iconMaterialName){
         this.claimID = claimID;
         this.creationDate = creationDate;
 
@@ -54,6 +56,10 @@ public class ClaimData {
         if(exitMessage != null){
             this.exitMessage = exitMessage;
         }
+
+        if(iconMaterialName != null){
+            this.iconMaterialName = iconMaterialName;
+        }
     }
 
     public ClaimData(long claimID, Player claimCreator){
@@ -64,6 +70,9 @@ public class ClaimData {
         this.creatorUUID = claimCreator.getUniqueId().toString();
     }
 
+    /*
+    This is ONLY a helper function for the Datastore. Do not use outside of it.
+     */
     String getNoEnterPlayerString(){
         StringBuilder stringBuilder = new StringBuilder();
 
