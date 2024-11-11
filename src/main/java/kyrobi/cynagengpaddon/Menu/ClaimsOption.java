@@ -120,10 +120,15 @@ public class ClaimsOption {
                         if(mat == null){
                             player.sendMessage(ChatColor.RED + message + " is not a valid item.");
                             return;
-                        } else {
-                            player.sendMessage(ChatColor.GREEN + "Changed claim icon to " + message);
-                            myDataStore.get(claimID).setIconMaterialName(message);
                         }
+
+                        if(!mat.isItem()){
+                            player.sendMessage(ChatColor.RED + message + " is not a valid item.");
+                            return;
+                        }
+
+                        player.sendMessage(ChatColor.GREEN + "Changed claim icon to " + message);
+                        myDataStore.get(claimID).setIconMaterialName(message);
                     }
                 }
             };

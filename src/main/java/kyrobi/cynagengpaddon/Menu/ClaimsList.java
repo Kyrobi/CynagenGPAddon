@@ -97,7 +97,12 @@ public class ClaimsList {
         int claimsCounter = 0;
         for(Claim i: playerClaims){
             // System.out.println("Block data: " + myDataStore.get(i.getID()).getIconMaterialName());
-            Material userDefinedMat = Material.getMaterial(myDataStore.get(i.getID()).getIconMaterialName());
+            ClaimData claimData = myDataStore.get(i.getID());
+            if(claimData == null){
+                myDataStore.put(i.getID(), new ClaimData(i.getID(), player));
+                claimData = myDataStore.get(i.getID());
+            }
+            Material userDefinedMat = Material.getMaterial(claimData.getIconMaterialName());
             ItemStack itemStack;
             if(userDefinedMat != null){
                 itemStack = new ItemStack(userDefinedMat);
@@ -120,9 +125,20 @@ public class ClaimsList {
 
             ItemMeta itemMeta = itemStack.getItemMeta();
 
+            /*
+            Deal the legacy claims that don't have a name / info stored. We try to store it here.
+             */
+            String claimOwnerName = myDataStore.get(i.getID()).getCreator();
+            String claimOwnerUUID = myDataStore.get(i.getID()).getCreatorUUID();
+            if(claimOwnerName.isEmpty()){
+                myDataStore.get(i.getID()).setCreator(i.getOwnerName());
+            }
+            if(claimOwnerUUID.isEmpty()){
+                myDataStore.get(i.getID()).setCreatorUUID(i.getOwnerID().toString());
+            }
+
             // Change the lore and name of the object added
             // long startTime = System.nanoTime();
-            ClaimData claimData = myDataStore.getOrDefault(i.getID(), new ClaimData(i.getID(), player));
             itemMeta.setDisplayName(ChatColor.GOLD + ChatColor.translateAlternateColorCodes('&', claimData.getClaimName()));
 //            long endTime = System.nanoTime();
 //            long duration = (endTime - startTime) / 1000000;
@@ -148,7 +164,7 @@ public class ClaimsList {
             lore.add(ChatColor.GRAY + "▸ Center: " + "x: " + ChatColor.WHITE + middleX + ChatColor.GRAY + ", " + "z: " + ChatColor.WHITE + middleZ);
             lore.add(ChatColor.GRAY + "▸ Corners:");
             lore.add(ChatColor.GRAY + "    x: " + ChatColor.WHITE + lesserX + ChatColor.GRAY + ", z: " + ChatColor.WHITE + lesserZ);
-            lore.add(ChatColor.GRAY + "    x: " + ChatColor.WHITE + greaterX + ChatColor.GRAY + ", z: " + ChatColor.WHITE + greaterX);
+            lore.add(ChatColor.GRAY + "    x: " + ChatColor.WHITE + greaterX + ChatColor.GRAY + ", z: " + ChatColor.WHITE + greaterZ);
             lore.add(ChatColor.GRAY + "▸ Area: " + ChatColor.WHITE + i.getArea() + ChatColor.GRAY + " blocks ");
             lore.add(ChatColor.GRAY + "    (" + ChatColor.WHITE + width + ChatColor.GRAY + "x" + ChatColor.WHITE + length + ChatColor.GRAY + ")");
             lore.add(ChatColor.GRAY + "▸ Creation date: ");
