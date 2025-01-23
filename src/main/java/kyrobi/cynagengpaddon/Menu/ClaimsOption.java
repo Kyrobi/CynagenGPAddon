@@ -12,7 +12,6 @@ import kyrobi.cynagengpaddon.CynagenGPAddon;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsTrust;
 import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Utils;
-import me.ryanhamshire.*;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;

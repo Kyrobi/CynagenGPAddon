@@ -4,10 +4,7 @@ import kyrobi.cynagengpaddon.Features.ProtectAnimals;
 import kyrobi.cynagengpaddon.Flags.AllowPvP;
 import kyrobi.cynagengpaddon.Flags.DenyEntry;
 import kyrobi.cynagengpaddon.Flags.EnterExitMessage;
-import kyrobi.cynagengpaddon.Listeners.ClaimCreate;
-import kyrobi.cynagengpaddon.Listeners.ClaimVisualizer;
-import kyrobi.cynagengpaddon.Listeners.CommandOverride;
-import kyrobi.cynagengpaddon.Listeners.ShovelHover;
+import kyrobi.cynagengpaddon.Listeners.*;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter;
@@ -49,6 +46,7 @@ public final class CynagenGPAddon extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("CynagenGPAddon");
 
          new ClaimVisualizer(this);
+         new EntityDamage(this);
          new ClaimCreate(this);
          new ClaimMessage(this);
          new CommandOverride(this);
@@ -57,6 +55,7 @@ public final class CynagenGPAddon extends JavaPlugin {
          new ClaimsRename(this);
          new ProtectAnimals(this);
          new ShovelHover(this);
+         new ClaimTime(this);
 
         /*
         Flags

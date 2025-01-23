@@ -239,7 +239,7 @@ public class ClaimVisualizer implements Listener {
                     }
 
                     alreadyVisualized.get(player.getName()).clear();
-                }, 20 * 20L);
+                }, 20 * 2L);
 
             }
 

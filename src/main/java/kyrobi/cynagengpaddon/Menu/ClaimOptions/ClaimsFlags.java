@@ -144,8 +144,8 @@ public class ClaimsFlags {
         Global Accessor
          */
         ArrayList<String> globalAccessButtonLore = new ArrayList<>();
-        globalAccessButtonLore.add(ChatColor.GRAY + "▸ Allows all player to your");
-        globalAccessButtonLore.add(ChatColor.GRAY + "▸ buttons, levels, and beds");
+        globalAccessButtonLore.add(ChatColor.GRAY + "▸ Allow all players to use your");
+        globalAccessButtonLore.add(ChatColor.GRAY + "  buttons, levels, beds, etc");
         globalAccessButtonLore.add(ChatColor.GRAY + " ");
 
         boolean isPublic;
