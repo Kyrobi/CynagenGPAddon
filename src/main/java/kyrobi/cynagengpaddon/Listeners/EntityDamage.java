@@ -24,7 +24,7 @@ import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 public class EntityDamage implements Listener {
     CynagenGPAddon plugin;
 
-    Set<EntityType> protectedMobs = new HashSet<>();
+    static Set<EntityType> protectedMobs = new HashSet<>();
 
     public EntityDamage(CynagenGPAddon plugin){
         this.plugin = plugin;
@@ -38,48 +38,68 @@ public class EntityDamage implements Listener {
 
 
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void onEntityDamage(EntityDamageByEntityEvent e){
-        Entity entityBeingDamaged = e.getEntity();
+    @EventHandler
+    public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if (e == null) {
+            plugin.getLogger().warning("Received null EntityDamageByEntityEvent");
+            return;
+        }
 
-        if(!protectedMobs.contains(entityBeingDamaged.getType())){
+        Entity entityBeingDamaged = e.getEntity();
+        if (entityBeingDamaged == null) {
+            plugin.getLogger().warning("Damaged entity is null");
+            return;
+        }
+
+        if (!protectedMobs.contains(entityBeingDamaged.getType())) {
             return;
         }
 
         Player player = null;
-        if(e.getDamager() instanceof Player){
-            player = (Player) e.getDamager();
-        }
+        Entity damager = e.getDamager();
 
-        // Check for projectiles
-        if(e.getDamager() instanceof Projectile projectile){
-            ProjectileSource shooter = projectile.getShooter();
-            if (shooter instanceof Player) {
-               player = ((Player) shooter).getPlayer();
-            }
-        }
-
-        if(player == null){
+        if (damager == null) {
+            plugin.getLogger().warning("Damager is null");
             return;
         }
 
-        if (entityBeingDamaged.getType().isAlive()) { // Mobs online
+        if (damager instanceof Player) {
+            player = (Player) damager;
+        }
 
-            Claim claim = GriefPrevention.instance.dataStore.getClaimAt(entityBeingDamaged.getLocation(), false, null);
-            ClaimPermission permission = claim.getPermission(String.valueOf(player));
-
-            // Ignore if has trust to the claim
-            if((permission != null) && (permission.equals(ClaimPermission.Manage) || permission.equals(ClaimPermission.Build))){
-                return;
+        if (damager instanceof Projectile projectile) {
+            ProjectileSource shooter = projectile.getShooter();
+            if (shooter instanceof Player) {
+                player = (Player) shooter;
             }
+        }
 
-            // Ignore owner
-            if(claim.getOwnerID() == player.getUniqueId()){
-                return;
-            }
+        if (player == null) {
+            return;
+        }
 
+        if (!entityBeingDamaged.getType().isAlive()) {
+            return;
+        }
+
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(entityBeingDamaged.getLocation(), false, null);
+        if (claim == null) {
+            return;
+        }
+
+        ClaimPermission permission = claim.getPermission(player.getName());
+        if (permission == null) {
+            return;
+        }
+
+        if (permission.equals(ClaimPermission.Manage) || permission.equals(ClaimPermission.Build)) {
+            return;
+        }
+
+        // Prevent damage if player is not the claim owner
+        if (!claim.getOwnerID().equals(player.getUniqueId())) {
             e.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "You can't hurt this entity inside a claim.");
+            player.sendMessage(ChatColor.RED + "You can't hurt this protected entity inside a claim.");
         }
     }
 }
