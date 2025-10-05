@@ -41,7 +41,7 @@ import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 
 public class ClaimsOption {
-    static int normalTeleportPrice = 800;
+    static int normalTeleportPrice = 100;
 
     public static void claimsOptionMenu(Player player, long claimID){
 

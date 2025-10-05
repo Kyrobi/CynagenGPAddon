@@ -109,18 +109,18 @@ public class NoPlayerEnter implements Listener {
                 return;
             }
 
-            Player onlinePlayerExact = Bukkit.getPlayerExact(message);
-            if(onlinePlayerExact == null){
-                player.sendMessage(ChatColor.RED + message + " is not online");
-                player.closeInventory();
+            OfflinePlayer offlinePlayerExact = Bukkit.getOfflinePlayer(message);
+            if(!offlinePlayerExact.hasPlayedBefore()){
+                player.sendMessage(ChatColor.RED + message + " has never played on the server before.");
+                // player.closeInventory();
 
             } else {
 
                 Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
                 ClaimData claimData = myDataStore.getOrDefault(claim.getID(), new ClaimData(claimID, player));
 
-                claimData.getNoEnterPlayer().add(onlinePlayerExact.getUniqueId().toString());
-                System.out.println("Adding " + onlinePlayerExact.getUniqueId().toString());
+                claimData.getNoEnterPlayer().add(offlinePlayerExact.getUniqueId().toString());
+                System.out.println("Adding " + offlinePlayerExact.getUniqueId().toString());
                 myDataStore.put(claimID, claimData);
 
                 player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
