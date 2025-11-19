@@ -109,23 +109,30 @@ public class NoPlayerEnter implements Listener {
                 return;
             }
 
-            OfflinePlayer offlinePlayerExact = Bukkit.getOfflinePlayer(message);
-            if(!offlinePlayerExact.hasPlayedBefore()){
-                player.sendMessage(ChatColor.RED + message + " has never played on the server before.");
-                // player.closeInventory();
+            // First check if player is online
+            Player onlinePlayer = Bukkit.getPlayer(message);
+            OfflinePlayer targetPlayer = null;
 
+            if(onlinePlayer != null) {
+                // Player is online
+                targetPlayer = onlinePlayer;
             } else {
-
-                Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-                ClaimData claimData = myDataStore.getOrDefault(claim.getID(), new ClaimData(claimID, player));
-
-                claimData.getNoEnterPlayer().add(offlinePlayerExact.getUniqueId().toString());
-                System.out.println("Adding " + offlinePlayerExact.getUniqueId().toString());
-                myDataStore.put(claimID, claimData);
-
-                player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
-
+                // Player is offline, try to get by exact name
+                targetPlayer = Bukkit.getOfflinePlayer(message);
+                if(!targetPlayer.hasPlayedBefore()){
+                    player.sendMessage(ChatColor.RED + message + " has never played on the server before.");
+                    return;
+                }
             }
+
+            Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+            ClaimData claimData = myDataStore.getOrDefault(claim.getID(), new ClaimData(claimID, player));
+
+            claimData.getNoEnterPlayer().add(targetPlayer.getUniqueId().toString());
+            System.out.println("Adding " + targetPlayer.getUniqueId().toString());
+            myDataStore.put(claimID, claimData);
+
+            player.sendMessage(ChatColor.GREEN + "Blocked " + message + " from your claim");
         });
         player.closeInventory();
     }
