@@ -1,6 +1,7 @@
 package kyrobi.cynagengpaddon;
 
 import kyrobi.cynagengpaddon.Features.ProtectAnimals;
+import kyrobi.cynagengpaddon.Fixes.MilkBucketDupe;
 import kyrobi.cynagengpaddon.Flags.AllowPvP;
 import kyrobi.cynagengpaddon.Flags.DenyEntry;
 import kyrobi.cynagengpaddon.Flags.EnterExitMessage;
@@ -12,6 +13,7 @@ import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Storage.Datastore;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
+import kyrobi.cynagengpaddon.commands.TransferAllClaims;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -64,8 +66,14 @@ public final class CynagenGPAddon extends JavaPlugin {
         new DenyEntry(this);
         new EnterExitMessage(this);
 
-         this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
-         this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
+        this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
+        this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
+        this.getCommand("transferallclaims").setExecutor((CommandExecutor)new TransferAllClaims(this));
+
+        /*
+        Fixes
+         */
+        new MilkBucketDupe(this);
     }
 
     public static CynagenGPAddon getPluginInstance(){
