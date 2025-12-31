@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -49,6 +50,26 @@ public class DenyEntry implements Listener {
                 Location spawn = essSpawn.getSpawn("default");
                 player.teleportAsync(spawn);
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        Location to = event.getTo();
+
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(to, false, null);
+        if (claim == null) return;
+
+        ClaimData data = myDataStore.get(claim.getID());
+        if (data == null) return;
+
+        if (data.getNoEnterPlayer().contains(player.getUniqueId().toString())) {
+            event.setCancelled(true);                       // stop the teleport
+            player.sendMessage("You cannot enter this claim.");
+
+//            Location spawn = essSpawn.getSpawn("default");
+//            player.teleportAsync(spawn);                    // send them to spawn
         }
     }
 }
