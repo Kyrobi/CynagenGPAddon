@@ -9,23 +9,12 @@ import kyrobi.cynagengpaddon.Listeners.*;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.NoPlayerEnter;
-import kyrobi.cynagengpaddon.Storage.ClaimData;
 import kyrobi.cynagengpaddon.Storage.Datastore;
 import kyrobi.cynagengpaddon.commands.Claims;
 import kyrobi.cynagengpaddon.commands.Eject;
-import kyrobi.cynagengpaddon.commands.TransferAllClaims;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Map;
-
-import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
-import static kyrobi.cynagengpaddon.Utils.*;
 
 public final class CynagenGPAddon extends JavaPlugin {
 
@@ -68,7 +57,6 @@ public final class CynagenGPAddon extends JavaPlugin {
 
         this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
         this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));
-        this.getCommand("transferallclaims").setExecutor((CommandExecutor)new TransferAllClaims(this));
 
         /*
         Fixes
