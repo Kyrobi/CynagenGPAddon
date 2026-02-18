@@ -14,5 +14,3 @@ commands:
       - listclaims
   eject:
     description: Removes a player out of your claim
-  transferallclaims:
-    description: Transfer all of your claims
