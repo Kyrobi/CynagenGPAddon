@@ -188,14 +188,13 @@ public class ClaimsList {
                     itemStack
             );
 
-            if(claimsCounter > 1000){
+            if(claimsCounter > 500){
                 player.sendMessage(ChatColor.RED + "WARNING: You have over 500 claims. We have limited the amount\n" +
                         "of claims shown to you to 500.\nConsider removing some unused claims.");
                 break;
             }
 
             claimsCounter++;
-            myDataStore.put(i.getID(), claimData);
         }
 
         ChestGui gui = new ChestGui(6, "Your claims");

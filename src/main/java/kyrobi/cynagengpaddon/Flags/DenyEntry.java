@@ -31,6 +31,13 @@ public class DenyEntry implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
+        // Short-circuit: skip if the player hasn't moved to a new block (e.g. head rotation only)
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockY() == event.getTo().getBlockY()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+            return;
+        }
+
         Player player = event.getPlayer();
         Location toLocation = event.getTo();
 

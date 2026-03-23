@@ -10,6 +10,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -49,6 +50,20 @@ public class ClaimVisualizer implements Listener {
     public ClaimVisualizer(CynagenGPAddon plugin){
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    /*
+    Clean up maps when a player disconnects to prevent memory leaks.
+     */
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e){
+        String name = e.getPlayer().getName();
+        alreadyVisualized.remove(name);
+        claimTooLargeWarning.remove(name);
+        BukkitTask task = visualQueue.remove(name);
+        if(task != null){
+            task.cancel();
+        }
     }
 
     @EventHandler
@@ -239,7 +254,7 @@ public class ClaimVisualizer implements Listener {
                     }
 
                     alreadyVisualized.get(player.getName()).clear();
-                }, 20 * 2L);
+                }, DISPLAY_TIME);
 
             }
 
@@ -306,7 +321,7 @@ public class ClaimVisualizer implements Listener {
     private void spawnParticle(World world, Player player, double x, double y, double z) {
         Location particleLoc = new Location(world, x, y, z);
         // player.spawnParticle(Particle.SPELL_WITCH, particleLoc, 1, 0, 0, 0, 0); // Good particle
-         player.spawnParticle(Particle.CLOUD, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
+        player.spawnParticle(Particle.CLOUD, particleLoc, 1, 0, 0, 0, 0); // Good particle 110fps
         // player.spawnParticle(Particle.REDSTONE, particleLoc, 1, 0, 0, 0, 0, new Particle.DustOptions(Color.FUCHSIA, 2)); 22fps
 
     }

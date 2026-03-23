@@ -117,7 +117,7 @@ public class ClaimMessage implements Listener {
             setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + "None");
         }
         else {
-            String message = claimData.getEnterMessage();
+            String message = claimData.getExitMessage();
             setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', message));
         }
 
@@ -220,62 +220,3 @@ public class ClaimMessage implements Listener {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-Chat Input Handling Mechanism:
-
-The core of the code revolves around capturing player input from the chat
-and using it in the context of your GUI. Here's how it works step by step:
-
-When the setClaimEnterMessage or setClaimLeaveMessage methods are called,
-a message is sent to the player telling them to enter the desired claim message in the chat.
-
-The chatInputCallbacks map is then used to store a callback function that
-will be executed when the player sends a chat message. This callback function takes the player's input as a parameter and handles it.
-
-In the onChat event handler, the plugin listens for chat events. When a
-player sends a chat message, the plugin checks if the player has a pending callback stored in the chatInputCallbacks map.
-
-If a callback is found, the player's chat message is passed to the corresponding
-callback function. The callback function handles the input, which, in this case, involves setting or modifying the claim message.
-
-After handling the input, the callback function is removed from the
-chatInputCallbacks map. This ensures that the chat input is only processed once for the intended purpose.
-
-Integration with GUI:
-
-In your GUI setup, when a player clicks on buttons related to setting
-claim messages, instead of immediately handling the logic to set the messages, you instruct the plugin
-to wait for the player's input. You do this by storing a callback function in the chatInputCallbacks map and
-then closing the inventory. This effectively puts the plugin in a "waiting for input" state.
-
-Why It Works:
-
-The key to this mechanism is the use of callbacks and the event system. The Bukkit event system allows your
-plugin to listen for various in-game events, such as player interactions or chat messages. By combining this event
-system with the concept of callbacks, you create a flexible way to handle asynchronous input.
-
-This approach is commonly used in event-driven programming, where you don't know exactly when certain
-events will occur. Instead of blocking the code and waiting for input (which could freeze the game), you initiate the process, set
-up a callback to handle the result, and let the rest of the game continue. When the expected event (in this
-case, the chat message) happens, the callback is executed to process the result.
-
-In summary, the code works by leveraging the Bukkit event system and callbacks to handle asynchronous
-player input effectively. It allows players to provide input at their own pace without blocking the game's execution,
-making for a smoother and more interactive experience.
- */

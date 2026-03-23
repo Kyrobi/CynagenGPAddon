@@ -29,7 +29,7 @@ public class Datastore {
                 + "allowPvP BOOLEAN, "
                 + "noEnterPlayer TEXT, "
                 + "enterMessage TEXT, "
-                + "exitMessage TEXT"
+                + "exitMessage TEXT, "
                 + "block TEXT"
                 + ");";
 
