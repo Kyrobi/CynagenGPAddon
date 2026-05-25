@@ -52,7 +52,7 @@ public class DenyEntry implements Listener {
             }
             if(claimData.getNoEnterPlayer().contains(event.getPlayer().getUniqueId().toString())){
                 event.setCancelled(true);
-                player.sendMessage("You cannot enter this claim.");
+                player.sendMessage("The claim owner has blocked you from entering this claim.");
 
                 Location spawn = essSpawn.getSpawn("default");
                 player.teleportAsync(spawn);
@@ -73,7 +73,7 @@ public class DenyEntry implements Listener {
 
         if (data.getNoEnterPlayer().contains(player.getUniqueId().toString())) {
             event.setCancelled(true);                       // stop the teleport
-            player.sendMessage("You cannot enter this claim.");
+            player.sendMessage("The claim owner has blocked you from entering this claim.");
 
 //            Location spawn = essSpawn.getSpawn("default");
 //            player.teleportAsync(spawn);                    // send them to spawn
