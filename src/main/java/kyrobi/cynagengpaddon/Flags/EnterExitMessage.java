@@ -53,6 +53,7 @@ public class EnterExitMessage implements Listener {
             if(enterMessage.equals("")){
                 return;
             }
+            player.sendMessage(ChatColor.GRAY + "Claim Message:");
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', enterMessage));
         }
 
@@ -68,6 +69,7 @@ public class EnterExitMessage implements Listener {
             if(exitMessage.equals("")){
                 return;
             }
+            player.sendMessage(ChatColor.GRAY + "Claim Message:");
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', exitMessage));
         }
     }

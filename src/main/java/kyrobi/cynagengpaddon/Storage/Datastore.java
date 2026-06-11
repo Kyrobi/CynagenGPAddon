@@ -27,6 +27,7 @@ public class Datastore {
                 + "creatorUUID TEXT, "
                 + "claimName TEXT, "
                 + "allowPvP BOOLEAN, "
+                + "restrictClaim BOOLEAN, "
                 + "noEnterPlayer TEXT, "
                 + "enterMessage TEXT, "
                 + "exitMessage TEXT, "
@@ -43,6 +44,12 @@ public class Datastore {
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute(createTableSQL);
                 System.out.println("Table 'claims' has been created (or already exists).");
+
+                try {
+                    stmt.execute("ALTER TABLE claims ADD COLUMN restrictClaim BOOLEAN DEFAULT 0");
+                } catch (SQLException e) {
+                    // Column already exists - ignore
+                }
             } catch (SQLException e) {
                 System.out.println("Failed to create the table: " + e.getMessage());
             }
@@ -68,12 +75,13 @@ public class Datastore {
                 String creatorUUID = rs.getString("creatorUUID");
                 String claimName = rs.getString("claimName");
                 boolean allowPvP = rs.getBoolean("allowPvP");
+                boolean restrictClaim = rs.getBoolean("restrictClaim");
                 String noEnterPlayer = rs.getString("noEnterPlayer");
                 String enterMessage = rs.getString("enterMessage");
                 String exitMessage = rs.getString("exitMessage");
                 String block = rs.getString("block");
 
-                ClaimData claimData = new ClaimData(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, noEnterPlayer, enterMessage, exitMessage, block);
+                ClaimData claimData = new ClaimData(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, restrictClaim, noEnterPlayer, enterMessage, exitMessage, block);
                 myDataStore.put(claimID, claimData);
             }
 
@@ -87,8 +95,8 @@ public class Datastore {
     public static void uninitialize() {
         Bukkit.getLogger().info("Uninitializing CynagenGPAddon Datastore ");
         String insertOrReplaceSQL = "INSERT OR REPLACE INTO claims "
-                + "(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, noEnterPlayer, enterMessage, exitMessage, block) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, restrictClaim, noEnterPlayer, enterMessage, exitMessage, block) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         final int BATCH_SIZE = 1000;  // Adjust the batch size based on performance testing
 
@@ -106,10 +114,11 @@ public class Datastore {
                 pstmt.setString(4, entry.getValue().getCreatorUUID());
                 pstmt.setString(5, entry.getValue().getClaimName());
                 pstmt.setBoolean(6, entry.getValue().isAllowPvP());
-                pstmt.setString(7, entry.getValue().getNoEnterPlayerString());
-                pstmt.setString(8, entry.getValue().getEnterMessage());
-                pstmt.setString(9, entry.getValue().getExitMessage());
-                pstmt.setString(10, entry.getValue().getIconMaterialName());
+                pstmt.setBoolean(7, entry.getValue().isRestrictClaim());
+                pstmt.setString(8, entry.getValue().getNoEnterPlayerString());
+                pstmt.setString(9, entry.getValue().getEnterMessage());
+                pstmt.setString(10, entry.getValue().getExitMessage());
+                pstmt.setString(11, entry.getValue().getIconMaterialName());
                 pstmt.addBatch();
 
                 if (++count % BATCH_SIZE == 0) {

@@ -5,6 +5,7 @@ import kyrobi.cynagengpaddon.Fixes.MilkBucketDupe;
 import kyrobi.cynagengpaddon.Flags.AllowPvP;
 import kyrobi.cynagengpaddon.Flags.DenyEntry;
 import kyrobi.cynagengpaddon.Flags.EnterExitMessage;
+import kyrobi.cynagengpaddon.Flags.RestrictClaimEntry;
 import kyrobi.cynagengpaddon.Listeners.*;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsRename;
 import kyrobi.cynagengpaddon.Menu.ClaimOptions.FlagsPage.ClaimMessage;
@@ -54,6 +55,7 @@ public final class CynagenGPAddon extends JavaPlugin {
         new AllowPvP(this);
         new DenyEntry(this);
         new EnterExitMessage(this);
+        new RestrictClaimEntry(this);
 
         this.getCommand("claims").setExecutor((CommandExecutor)new Claims(this));
         this.getCommand("eject").setExecutor((CommandExecutor)new Eject(this));

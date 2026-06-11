@@ -19,12 +19,13 @@ public class ClaimData {
     String creatorUUID = "";
     String claimName = "[No Name]";
     boolean allowPvP = false;
+    boolean restrictClaim = false;
     Set<String> noEnterPlayer = new HashSet<>();
     String enterMessage = "";
     String exitMessage = "";
     String iconMaterialName = "";
 
-    public ClaimData(long claimID, long creationDate, String creator, String creatorUUID, String claimName, boolean allowPvP, String noEnterPlayer, String enterMessage, String exitMessage, String iconMaterialName){
+    public ClaimData(long claimID, long creationDate, String creator, String creatorUUID, String claimName, boolean allowPvP, boolean restrictClaim, String noEnterPlayer, String enterMessage, String exitMessage, String iconMaterialName){
         this.claimID = claimID;
         this.creationDate = creationDate;
 
@@ -43,6 +44,7 @@ public class ClaimData {
         }
 
         this.allowPvP = allowPvP;
+        this.restrictClaim = restrictClaim;
 
         if(noEnterPlayer != null){
             String[] noEnterPlayers = noEnterPlayer.split(DELIMITER);

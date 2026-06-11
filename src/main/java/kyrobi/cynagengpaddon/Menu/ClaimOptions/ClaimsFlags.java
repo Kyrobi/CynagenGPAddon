@@ -110,6 +110,38 @@ public class ClaimsFlags {
 
 
         /*
+        Restrict Claim
+         */
+        ArrayList<String> restrictClaimButtonLore = new ArrayList<>();
+        restrictClaimButtonLore.add(ChatColor.GRAY + "▸ Block untrusted players from entering");
+        restrictClaimButtonLore.add(ChatColor.GRAY + "  your claim");
+        restrictClaimButtonLore.add("");
+        boolean restrictClaimEnabled = claimData.isRestrictClaim();
+
+        if(restrictClaimEnabled){
+            restrictClaimButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.GREEN + " Enabled");
+        } else {
+            restrictClaimButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.RED + " Disabled");
+        }
+
+        ItemStack restrictClaimButton = Utils.itemGenerator(Material.IRON_DOOR, ChatColor.GREEN + "Restrict Claim", restrictClaimButtonLore);
+        navigation.addItem(new GuiItem(restrictClaimButton, event -> {
+
+            event.setCancelled(true);
+
+            if(!restrictClaimEnabled){
+                claimData.setRestrictClaim(true);
+            } else {
+                claimData.setRestrictClaim(false);
+            }
+
+            myDataStore.put(claimID, claimData);
+            showClaimFlags(player, claimID);
+
+        }), 2, 3 );
+
+
+        /*
         NoEnterPlayer
          */
         ArrayList<String> noEnterPlayerButtonLore = new ArrayList<>();
