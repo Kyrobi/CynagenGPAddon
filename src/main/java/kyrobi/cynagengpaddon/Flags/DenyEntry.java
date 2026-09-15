@@ -54,8 +54,10 @@ public class DenyEntry implements Listener {
                 event.setCancelled(true);
                 player.sendMessage("The claim owner has blocked you from entering this claim.");
 
-                Location spawn = essSpawn.getSpawn("default");
-                player.teleportAsync(spawn);
+                if(essSpawn != null){
+                    Location spawn = essSpawn.getSpawn("default");
+                    player.teleportAsync(spawn);
+                }
             }
         }
     }

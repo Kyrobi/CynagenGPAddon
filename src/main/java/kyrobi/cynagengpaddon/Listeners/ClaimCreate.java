@@ -22,9 +22,11 @@ public class ClaimCreate implements Listener {
     public void onClaimCreate(ClaimCreatedEvent e){
 
         if(!myDataStore.containsKey(e.getClaim().getID())){
-            ClaimData claimData = new ClaimData(e.getClaim().getID(), (Player) e.getCreator());
-            System.out.println("Does not contain");
-            myDataStore.put(e.getClaim().getID(), claimData);
+            if(e.getCreator() instanceof Player creator){
+                ClaimData claimData = new ClaimData(e.getClaim().getID(), creator);
+                System.out.println("Does not contain");
+                myDataStore.putIfAbsent(e.getClaim().getID(), claimData);
+            }
         }
 
         System.out.println("Does contain");

@@ -5,14 +5,14 @@ import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.sql.*;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Datastore {
 
     private static String DB_PATH;
 
-    public static HashMap<Long, ClaimData> myDataStore = new HashMap<>();
+    public static ConcurrentHashMap<Long, ClaimData> myDataStore = new ConcurrentHashMap<>();
 
     public static void initialize() {
         File file = new File("");
@@ -82,7 +82,7 @@ public class Datastore {
                 String block = rs.getString("block");
 
                 ClaimData claimData = new ClaimData(claimID, creationTime, creator, creatorUUID, claimName, allowPvP, restrictClaim, noEnterPlayer, enterMessage, exitMessage, block);
-                myDataStore.put(claimID, claimData);
+                myDataStore.putIfAbsent(claimID, claimData);
             }
 
             System.out.println("All data has been loaded into myDataStore.");

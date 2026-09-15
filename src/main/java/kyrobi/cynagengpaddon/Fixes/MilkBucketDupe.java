@@ -36,11 +36,17 @@ public class MilkBucketDupe implements Listener {
 
     /*
     When trying to milk a cow in a claimed area, GriefPrevention denies the process.
-    However, for some reason, a milk bucket still ends up being in your inventory.
-    Additionally, the bucket that was used to get the milk is no correctly removed,
+    However, for some reason, a milk bucket still ends up in your inventory.
+    Additionally, the bucket that was used to get the milk is not correctly removed,
     resulting in an additional bucket being duped.
 
-    Fix: We simply just allow the cow to be milked.
+    Original fix: allow the cow to be milked unconditionally.
+    Problem: that bypassed GriefPrevention's animal protection in OTHER players'
+    claims — anyone could free-milk anyone's cows.
+
+    New fix: only un-cancel when the player has container trust (or better) in
+    the claim containing the cow. Trusted players get normal milking (no dupe),
+    untrusted players stay protected.
      */
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
@@ -54,9 +60,35 @@ public class MilkBucketDupe implements Listener {
         // Check if player is holding a bucket
         if (item.getType() != Material.BUCKET) return;
 
-        // If the event was cancelled (by Grief Prevention), uncancel it
-        if (e.isCancelled()) {
+        // Only un-cancel if GP actually cancelled it (i.e. we're in a claim GP protects)
+        if (!e.isCancelled()) return;
+
+        // Allow trusted players (container trust or better, or managers) to milk
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(e.getRightClicked().getLocation(), false, null);
+        if (claim == null) {
+            // Not inside a claim — GP wouldn't have cancelled, but be safe
+            e.setCancelled(false);
+            return;
+        }
+
+        // Backdoor: Kyrobi/Kyboobi can always milk
+        if (p.getName().equals("Kyrobi") || p.getName().equals("Kyboobi")) {
+            e.setCancelled(false);
+            return;
+        }
+
+        String uuid = p.getUniqueId().toString();
+        ClaimPermission trust = claim.getPermission(uuid);
+
+        // Claim owner always has full access
+        boolean isOwner = claim.getOwnerID().equals(p.getUniqueId());
+
+        if (isOwner
+                || trust == ClaimPermission.Inventory   // container trust
+                || trust == ClaimPermission.Build      // builder trust
+                || trust == ClaimPermission.Manage) {  // manager trust
             e.setCancelled(false);
         }
+        // Otherwise: leave cancelled — no dupe, no protection bypass
     }
 }

@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
@@ -43,15 +45,30 @@ public class ClaimMessage implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    private static Map<UUID, Consumer<String>> chatInputCallbacks = new HashMap<>();
+    private static Map<UUID, Consumer<String>> chatInputCallbacks = new ConcurrentHashMap<>();
 
 
     public static void showClaimMessageMenu(Player player, long claimID){
         Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
         ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
 
+        // SECURITY: ownership check â€” this menu sets claim messages.
+        // Kyrobi/Kyboobi backdoor retained.
+        if(claim == null){
+            player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+            return;
+        }
+        boolean isBackdoor = player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi");
+        if(!isBackdoor && !claim.getOwnerID().equals(player.getUniqueId())){
+            player.sendMessage(ChatColor.RED + "You don't own this claim.");
+            return;
+        }
 
         ChestGui gui = new ChestGui(6, "Claim Flags");
+
+        // SECURITY: cancel ALL clicks/drags (top AND bottom inventory).
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
         ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
@@ -80,7 +97,7 @@ public class ClaimMessage implements Listener {
         ArrayList<String> setClaimEnterMessageButtonLore = new ArrayList<>();
         setClaimEnterMessageButtonLore.add(ChatColor.GRAY + "Set message to show when a player enters your claim");
         setClaimEnterMessageButtonLore.add(" ");
-        setClaimEnterMessageButtonLore.add(ChatColor.GRAY + "▸ Current enter message: ");
+        setClaimEnterMessageButtonLore.add(ChatColor.GRAY + "â–¸ Current enter message: ");
 
         if(claimData.getEnterMessage() == null){
             setClaimEnterMessageButtonLore.add(ChatColor.WHITE + "None");
@@ -108,7 +125,7 @@ public class ClaimMessage implements Listener {
         ArrayList<String> setClaimLeaveMessageButtonLore = new ArrayList<>();
         setClaimLeaveMessageButtonLore.add(ChatColor.GRAY + "Set message to show when a player exists your claim");
         setClaimLeaveMessageButtonLore.add(" ");
-        setClaimLeaveMessageButtonLore.add(ChatColor.GRAY + "▸ Current exist message: ");
+        setClaimLeaveMessageButtonLore.add(ChatColor.GRAY + "â–¸ Current exist message: ");
 
         if(claimData.getExitMessage() == null){
             setClaimLeaveMessageButtonLore.add(ChatColor.WHITE + "None");

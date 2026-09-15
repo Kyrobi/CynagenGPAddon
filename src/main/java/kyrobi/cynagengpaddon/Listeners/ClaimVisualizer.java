@@ -13,8 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -41,7 +39,6 @@ public class ClaimVisualizer implements Listener {
     private CynagenGPAddon plugin;
 
     private static final long DISPLAY_TIME = 5 * 20L; // Display time in ticks (1 second = 20 ticks)
-    private static HashMap<String, BukkitTask> visualQueue = new HashMap<>();
     static Set<String> claimTooLargeWarning = new HashSet<>();
     static int maxClaimSize = 1000;
 
@@ -60,10 +57,6 @@ public class ClaimVisualizer implements Listener {
         String name = e.getPlayer().getName();
         alreadyVisualized.remove(name);
         claimTooLargeWarning.remove(name);
-        BukkitTask task = visualQueue.remove(name);
-        if(task != null){
-            task.cancel();
-        }
     }
 
     @EventHandler
@@ -79,91 +72,7 @@ public class ClaimVisualizer implements Listener {
             return;
         }
 
-        if(visualQueue.get(e.getPlayer().getName()) != null){
-            visualQueue.get(e.getPlayer().getName()).cancel();
-        }
-
         ArrayList<Claim> nearbyClaims = new ArrayList<>(e.getClaims());
-
-
-        visualQueue.put(e.getPlayer().getName(),
-                new BukkitRunnable(){
-                    int counter = 0;
-
-                    @Override
-                    public void run(){
-                /*
-                Get all the claims and loop through them
-                 */
-
-//                        for(Claim i: nearbyClaims){
-//                            Location corner1 = i.getLesserBoundaryCorner();
-//                            Location corner2 = i.getGreaterBoundaryCorner();
-//
-//                            /*
-//                            Clamp down on claims that are too big
-//                             */
-//                            int xSize = Math.abs(corner2.getBlockX() - corner1.getBlockX()) + 1;
-//                            int zSize = Math.abs(corner2.getBlockZ() - corner1.getBlockZ()) + 1;
-//
-//                            // Check if claim size exceeds the limit
-//                            if (xSize <= maxClaimSize && zSize <= maxClaimSize) {
-//                                int maxHeight = e.getPlayer().getLocation().getBlockY() + 25;
-//                                int minHeight = e.getPlayer().getLocation().getBlockY() - 10;
-//                                int spacing = 6;
-//                                int boundarySpacing = 5;
-//                                generateClaimOutline(e.getPlayer(), corner1, corner2, spacing, boundarySpacing, minHeight, maxHeight);
-//                            } else {
-//                                if(!claimTooLargeWarning.contains(e.getPlayer().getName())){
-//                                    e.getPlayer().sendMessage(ChatColor.RED + "There is a claim that is too large to visualize. Not showing particles.");
-//                                    claimTooLargeWarning.add(e.getPlayer().getName());
-//                                }
-//                            }
-//
-//                        }
-
-                        /*
-                        TESTING START
-
-                         */
-//                        for (Claim i : nearbyClaims) {
-//                            Location corner1 = i.getLesserBoundaryCorner();
-//                            Location corner2 = i.getGreaterBoundaryCorner();
-//                            World world = corner1.getWorld();
-//
-//                            // Calculate the other two corners
-//                            Location corner3 = new Location(world, corner1.getX(), corner1.getY(), corner2.getZ());
-//                            Location corner4 = new Location(world, corner2.getX(), corner2.getY(), corner1.getZ());
-//
-//                            // Create walls - EAST
-//                            double top1 ;
-//                            double top2;
-//                            double bottom1 = corner2.getX();
-//                            double bottom2 = corner4.getX();
-//                            // spawnTextDisplayEast(world, , FACE.EAST_INSIDE);
-//
-//
-//
-//                            System.out.println("Corner 1: " + corner1);
-//                            System.out.println("Corner 2: " + corner2);
-//                            System.out.println("Corner 3: " + corner3);
-//                            System.out.println("Corner 4: " + corner4);
-//                        }
-
-                        /*
-                        TESTING END
-                         */
-
-                        counter++;
-
-                        if(counter >= 40){
-                            visualQueue.remove(e.getPlayer().getName());
-                            claimTooLargeWarning.remove(e.getPlayer().getName());
-                            cancel();
-                        }
-                    }
-                }.runTaskTimer(plugin, 0, 10L)
-        );
 
         /*
         TESTING START
@@ -253,7 +162,10 @@ public class ClaimVisualizer implements Listener {
                         ent.remove();
                     }
 
-                    alreadyVisualized.get(player.getName()).clear();
+                    List<Long> visualized = alreadyVisualized.get(player.getName());
+                    if(visualized != null){
+                        visualized.clear();
+                    }
                 }, DISPLAY_TIME);
 
             }

@@ -23,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +31,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
@@ -39,7 +41,7 @@ import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 
 public class NoPlayerEnter implements Listener {
     private static HashMap<String, String> nameCache = new HashMap<>();
-    private static Map<UUID, Consumer<String>> chatInputCallbacks = new HashMap<>();
+    private static Map<UUID, Consumer<String>> chatInputCallbacks = new ConcurrentHashMap<>();
 
     public NoPlayerEnter(CynagenGPAddon plugin){
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -50,8 +52,24 @@ public class NoPlayerEnter implements Listener {
      */
     public static void claimsNoPlayerEnterOption(Player player, InventoryClickEvent invClick, long claimID){
 
+        // SECURITY: ownership check â€” this menu edits the claim blacklist.
+        // Kyrobi/Kyboobi backdoor retained.
+        Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+        if(claim == null){
+            player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+            return;
+        }
+        boolean isBackdoor = player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi");
+        if(!isBackdoor && !claim.getOwnerID().equals(player.getUniqueId())){
+            player.sendMessage(ChatColor.RED + "You don't own this claim.");
+            return;
+        }
 
         ChestGui gui = new ChestGui(6, "Blacklist Player Options");
+
+        // SECURITY: cancel ALL clicks/drags (top AND bottom inventory).
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
         ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
@@ -188,6 +206,11 @@ public class NoPlayerEnter implements Listener {
 
 
         ChestGui gui = new ChestGui(6, "Blocked Members");
+
+        // SECURITY: cancel ALL clicks/drags (top AND bottom inventory).
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
+
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 5);
         pages.populateWithItemStacks(allMembers);
         pages.setOnClick(e -> {
@@ -240,7 +263,7 @@ public class NoPlayerEnter implements Listener {
         UUID playerUUID = player.getUniqueId();
 
         if (chatInputCallbacks.containsKey(playerUUID)) {
-            String filteredString = event.getMessage().replaceAll("§[a-z]", "").trim();
+            String filteredString = event.getMessage().replaceAll("Â§[a-z]", "").trim();
             System.out.println("MEESSAGE: " + filteredString);
             event.setCancelled(true);
 

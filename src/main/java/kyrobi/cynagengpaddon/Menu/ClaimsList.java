@@ -19,6 +19,8 @@ import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -160,14 +162,14 @@ public class ClaimsList {
             int length = Math.abs(greaterZ - lesserZ) + 1;
 
             List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "▸ ID: " + ChatColor.WHITE + i.getID());
-            lore.add(ChatColor.GRAY + "▸ Center: " + "x: " + ChatColor.WHITE + middleX + ChatColor.GRAY + ", " + "z: " + ChatColor.WHITE + middleZ);
-            lore.add(ChatColor.GRAY + "▸ Corners:");
+            lore.add(ChatColor.GRAY + "â–¸ ID: " + ChatColor.WHITE + i.getID());
+            lore.add(ChatColor.GRAY + "â–¸ Center: " + "x: " + ChatColor.WHITE + middleX + ChatColor.GRAY + ", " + "z: " + ChatColor.WHITE + middleZ);
+            lore.add(ChatColor.GRAY + "â–¸ Corners:");
             lore.add(ChatColor.GRAY + "    x: " + ChatColor.WHITE + lesserX + ChatColor.GRAY + ", z: " + ChatColor.WHITE + lesserZ);
             lore.add(ChatColor.GRAY + "    x: " + ChatColor.WHITE + greaterX + ChatColor.GRAY + ", z: " + ChatColor.WHITE + greaterZ);
-            lore.add(ChatColor.GRAY + "▸ Area: " + ChatColor.WHITE + i.getArea() + ChatColor.GRAY + " blocks ");
+            lore.add(ChatColor.GRAY + "â–¸ Area: " + ChatColor.WHITE + i.getArea() + ChatColor.GRAY + " blocks ");
             lore.add(ChatColor.GRAY + "    (" + ChatColor.WHITE + width + ChatColor.GRAY + "x" + ChatColor.WHITE + length + ChatColor.GRAY + ")");
-            lore.add(ChatColor.GRAY + "▸ Creation date: ");
+            lore.add(ChatColor.GRAY + "â–¸ Creation date: ");
             lore.add(ChatColor.WHITE + "    " + longToDate(claimData.getCreationDate()));
 
             /*
@@ -199,6 +201,12 @@ public class ClaimsList {
 
         ChestGui gui = new ChestGui(6, "Your claims");
 
+        // SECURITY: cancel ALL clicks/drags (top AND bottom). Shift-clicking a
+        // real item from the bottom inventory into this virtual GUI previously
+        // destroyed it on the next rebuild; drags/hotbar-swaps were unhandled.
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
+
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 5);
         pages.populateWithItemStacks(allClaims);
         pages.setOnClick(event -> {
@@ -209,13 +217,28 @@ public class ClaimsList {
                 return;
             }
 
-            String itemLoreFirstLine = event.getCurrentItem().getItemMeta().getLore().get(0);
-            // System.out.println("Uncleaned: " + itemLoreFirstLine);
-            // Using the substring to cut out the first digit since it's leftover from color code
-            String cleanedUpString = itemLoreFirstLine.replaceAll("[^\\p{N}]", "").substring(1);
-            //event.getWhoClicked().sendMessage(cleanedUpString);
+            List<String> lore = event.getCurrentItem().getItemMeta().getLore();
+            if(lore == null || lore.isEmpty()){
+                return;
+            }
 
-            claimsOptionMenu((Player) event.getWhoClicked(), Long.parseLong(cleanedUpString));
+            // Defensive parsing: the claim ID comes from item lore, which we
+            // control â€” but a malformed/short string previously threw
+            // StringIndexOutOfBoundsException inside the click handler.
+            String itemLoreFirstLine = lore.get(0);
+            String digitsOnly = itemLoreFirstLine.replaceAll("[^\\p{N}]", "");
+            if(digitsOnly.length() < 2){
+                return;
+            }
+
+            long parsedClaimID;
+            try {
+                parsedClaimID = Long.parseLong(digitsOnly.substring(1));
+            } catch (NumberFormatException ex) {
+                return;
+            }
+
+            claimsOptionMenu((Player) event.getWhoClicked(), parsedClaimID);
 
         });
 
@@ -269,13 +292,13 @@ public class ClaimsList {
 
         ArrayList<String> exitButtonLore = new ArrayList<>();
         exitButtonLore.add(ChatColor.GRAY + "Stats");
-        exitButtonLore.add(ChatColor.GRAY + "▸ Claims: " + ChatColor.WHITE + playerClaims.size());
-        exitButtonLore.add(ChatColor.GRAY + "▸ Total used: " + ChatColor.WHITE + totalClaimBlocksUsed);
-        exitButtonLore.add(ChatColor.GRAY + "▸ Total remaining: " + ChatColor.GREEN + playerData.getRemainingClaimBlocks());
+        exitButtonLore.add(ChatColor.GRAY + "â–¸ Claims: " + ChatColor.WHITE + playerClaims.size());
+        exitButtonLore.add(ChatColor.GRAY + "â–¸ Total used: " + ChatColor.WHITE + totalClaimBlocksUsed);
+        exitButtonLore.add(ChatColor.GRAY + "â–¸ Total remaining: " + ChatColor.GREEN + playerData.getRemainingClaimBlocks());
         exitButtonLore.add(ChatColor.GRAY + "--- Source ---");
-        exitButtonLore.add(ChatColor.GRAY + "▸ From playtime: " + ChatColor.WHITE + playerData.getAccruedClaimBlocks());
-        exitButtonLore.add(ChatColor.GRAY + "▸ From voting/admin: " + ChatColor.WHITE + playerData.getBonusClaimBlocks());
-        exitButtonLore.add(ChatColor.GRAY + "▸ Total: " + ChatColor.WHITE + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks()));
+        exitButtonLore.add(ChatColor.GRAY + "â–¸ From playtime: " + ChatColor.WHITE + playerData.getAccruedClaimBlocks());
+        exitButtonLore.add(ChatColor.GRAY + "â–¸ From voting/admin: " + ChatColor.WHITE + playerData.getBonusClaimBlocks());
+        exitButtonLore.add(ChatColor.GRAY + "â–¸ Total: " + ChatColor.WHITE + (playerData.getAccruedClaimBlocks() + playerData.getBonusClaimBlocks()));
         ItemStack exitButton = Utils.itemGenerator(Material.WRITTEN_BOOK, ChatColor.GOLD+"Stats", exitButtonLore);
         navigation.addItem(new GuiItem(exitButton, event ->
 
@@ -296,12 +319,12 @@ public class ClaimsList {
         sortButtonLore.add(" ");
 
         if(sort_type == Sort.CLAIM_ID){
-            sortButtonLore.add(ChatColor.GOLD + "" +ChatColor.BOLD + "▸ Claim ID");
+            sortButtonLore.add(ChatColor.GOLD + "" +ChatColor.BOLD + "â–¸ Claim ID");
             sortButtonLore.add(ChatColor.GRAY + "  Alphabetical");
         }
         else if(sort_type == Sort.ALPHABETICAL){
             sortButtonLore.add(ChatColor.GRAY + "  Claim ID");
-            sortButtonLore.add(ChatColor.GOLD + "" +ChatColor.BOLD + "▸ Alphabetical");
+            sortButtonLore.add(ChatColor.GOLD + "" +ChatColor.BOLD + "â–¸ Alphabetical");
         }
 
         return Utils.itemGenerator(Material.HOPPER, ChatColor.GRAY + "Sort", sortButtonLore);

@@ -22,6 +22,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,8 +31,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static kyrobi.cynagengpaddon.CynagenGPAddon.getPluginInstance;
 import static kyrobi.cynagengpaddon.Menu.ClaimOptions.ClaimsFlags.showClaimFlags;
@@ -43,10 +47,37 @@ import static kyrobi.cynagengpaddon.commands.Claims.userSortType;
 public class ClaimsOption {
     static int normalTeleportPrice = 100;
 
+    // One paid teleport in flight per player. Spam-clicking the pearl used to
+    // queue multiple teleports that each passed the same pre-charge balance check.
+    private static final Set<UUID> teleportInFlight = ConcurrentHashMap.newKeySet();
+
     public static void claimsOptionMenu(Player player, long claimID){
+
+        // SECURITY: server-side ownership check. The claim ID normally comes from
+        // the player's own claims list, but it is parsed from item lore â€” verify
+        // it here so a crafted item can't open someone else's claim options
+        // (delete/trust/flag actions all flow from this menu).
+        // Kyrobi/Kyboobi bypass retained for admin use.
+        Claim targetClaim = GriefPrevention.instance.dataStore.getClaim(claimID);
+        if(targetClaim == null){
+            player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+            return;
+        }
+        boolean isBackdoor = player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi");
+        if(!isBackdoor && !targetClaim.getOwnerID().equals(player.getUniqueId())){
+            player.sendMessage(ChatColor.RED + "You don't own this claim.");
+            return;
+        }
 
         Essentials ess = (Essentials) Bukkit.getServer().getPluginManager().getPlugin("Essentials");
         ChestGui gui = new ChestGui(6, "Claim Settings");
+
+        // SECURITY: cancel ALL clicks and drags (top AND bottom inventory).
+        // These menus never need cursor items; uncancelled bottom-inventory
+        // interactions (shift-click into the GUI, double-click collect, drags)
+        // can move real items into the virtual inventory = dupe/loss vectors.
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
         ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
@@ -145,8 +176,19 @@ public class ClaimsOption {
         ItemStack teleportButton = Utils.itemGenerator(Material.ENDER_PEARL, ChatColor.GREEN + "Teleport", teleportButtonLore);
         navigation.addItem(new GuiItem(teleportButton, event -> {
             event.setCancelled(true);
-            if(ess.getUser(player.getUniqueId()).getMoney().intValue() >= teleportCost){
+
+            // Anti-spam: one in-flight teleport per player
+            if(!teleportInFlight.add(player.getUniqueId())){
+                player.sendMessage(ChatColor.RED + "Your previous teleport is still being processed.");
+                return;
+            }
+
+            try {
                 Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+                if(claim == null){
+                    player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+                    return;
+                }
 
                 Location lesserCorner = claim.getLesserBoundaryCorner();
                 Location greaterCorner = claim.getGreaterBoundaryCorner();
@@ -162,35 +204,47 @@ public class ClaimsOption {
                 Location teleportLoc = new Location(lesserCorner.getWorld(), middleX, 90, middleZ);
 
                 CynagenGPAddon plugin = JavaPlugin.getPlugin(CynagenGPAddon.class);
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    // Didn't know you could do .getHighestBlock async, but gg
-                    int safeY = greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getY();
-                    teleportLoc.setY(safeY);
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    try {
+                        int safeY = greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getY();
+                        teleportLoc.setY(safeY);
 
-                    if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.NETHER)){
-                        player.sendMessage(ChatColor.RED + "For safety reasons, nether\nteleport is disabled.");
-                        return;
-                    }
-
-                    if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.THE_END)){
-                        if(safeY <= 0 || (greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getType() == Material.AIR)){
-                            player.sendMessage(ChatColor.RED + "Can't teleport. Area is over void.");
+                        if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.NETHER)){
+                            player.sendMessage(ChatColor.RED + "For safety reasons, nether\nteleport is disabled.");
                             return;
                         }
+
+                        if(greaterCorner.getWorld().getEnvironment().equals(World.Environment.THE_END)){
+                            if(safeY <= 0 || (greaterCorner.getWorld().getHighestBlockAt(teleportLoc).getType() == Material.AIR)){
+                                player.sendMessage(ChatColor.RED + "Can't teleport. Area is over void.");
+                                return;
+                            }
+                        }
+
+                        // SECURITY: re-verify balance HERE, on the main thread, immediately
+                        // before the charged teleport. The click-time check (below) is only
+                        // cosmetic now; the actual charge happens via Trade inside the
+                        // Essentials teleport, so the check must be as close to it as possible.
+                        if(ess.getUser(player.getUniqueId()).getMoney().doubleValue() < teleportCost){
+                            player.sendMessage(ChatColor.RED + "You do not have enough money to teleport.");
+                            return;
+                        }
+
+                        CompletableFuture<Boolean> teleportResult = new CompletableFuture<>();
+                        ess.getUser(player.getUniqueId()).getAsyncTeleport().teleport(
+                                teleportLoc,
+                                new Trade(BigDecimal.valueOf(teleportCost), ess),
+                                PlayerTeleportEvent.TeleportCause.PLUGIN,
+                                teleportResult
+                        );
+
+                    } finally {
+                        teleportInFlight.remove(player.getUniqueId());
                     }
-
-                    ess.getUser(player.getUniqueId()).getAsyncTeleport().teleport(
-                            teleportLoc,
-                            new Trade(BigDecimal.valueOf(teleportCost), ess),
-                            PlayerTeleportEvent.TeleportCause.PLUGIN,
-                            new CompletableFuture<>()
-                    );
-
                 });
 
-
-            } else {
-                player.sendMessage(ChatColor.RED + "You do not have enough money to teleport.");
+            } finally {
+                teleportInFlight.remove(player.getUniqueId());
             }
 
         }), 2, 2 );
@@ -216,11 +270,11 @@ public class ClaimsOption {
         Flags option
          */
         ArrayList<String> flagsButtonLore = new ArrayList<>();
-        flagsButtonLore.add(ChatColor.GRAY + "▸ Flags are optional settings that");
-        flagsButtonLore.add(ChatColor.GRAY + "▸ modify how a claim works. It lets");
-        flagsButtonLore.add(ChatColor.GRAY + "▸ you customize claims by setting");
-        flagsButtonLore.add(ChatColor.GRAY + "▸ extra options such as allowing PvP");
-        flagsButtonLore.add(ChatColor.GRAY + "▸ or welcome messages.");
+        flagsButtonLore.add(ChatColor.GRAY + "â–¸ Flags are optional settings that");
+        flagsButtonLore.add(ChatColor.GRAY + "â–¸ modify how a claim works. It lets");
+        flagsButtonLore.add(ChatColor.GRAY + "â–¸ you customize claims by setting");
+        flagsButtonLore.add(ChatColor.GRAY + "â–¸ extra options such as allowing PvP");
+        flagsButtonLore.add(ChatColor.GRAY + "â–¸ or welcome messages.");
         ItemStack flagsButton = Utils.itemGenerator(Material.OAK_SIGN, ChatColor.GREEN + "Flags", flagsButtonLore);
         navigation.addItem(new GuiItem(flagsButton, event -> {
 
@@ -262,16 +316,45 @@ public class ClaimsOption {
     }
 
     public static void confirmClaimDelete(Player player, long claimID){
+        // SECURITY: re-verify ownership at the destructive action (defense-in-depth;
+        // claimsOptionMenu already checks, but confirmClaimDelete is public/static).
+        // Kyrobi/Kyboobi backdoor retained.
+        Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
+        if(claim == null){
+            player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+            return;
+        }
+        boolean isBackdoor = player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi");
+        if(!isBackdoor && !claim.getOwnerID().equals(player.getUniqueId())){
+            player.sendMessage(ChatColor.RED + "You don't own this claim.");
+            return;
+        }
+
         ChestGui gui = new ChestGui(6, "Confirm Delete");
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
+
         StaticPane navigation = new StaticPane(0, 0, 9, 6);
 
         ItemStack setClaimLeaveMessageButton = Utils.itemGenerator(Material.RED_WOOL, ChatColor.RED + "CONFIRM DELETE");
         navigation.addItem(new GuiItem(setClaimLeaveMessageButton, event -> {
             event.setCancelled(true);
 
-            Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
-            GriefPrevention griefPrevention = GriefPrevention.instance;
-            griefPrevention.dataStore.deleteClaim(claim);
+            Claim liveClaim = GriefPrevention.instance.dataStore.getClaim(claimID);
+            if(liveClaim == null){
+                player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+                player.closeInventory();
+                return;
+            }
+            // The owner could have changed between opening the menu and confirming â€”
+            // check the live claim, not the one from menu-open time.
+            if(!isBackdoor && !liveClaim.getOwnerID().equals(player.getUniqueId())){
+                player.sendMessage(ChatColor.RED + "You don't own this claim.");
+                player.closeInventory();
+                return;
+            }
+
+            GriefPrevention.instance.dataStore.deleteClaim(liveClaim);
             player.sendMessage(ChatColor.GREEN + "Claim deleted.");
             player.closeInventory();
 
@@ -312,15 +395,15 @@ public class ClaimsOption {
         ArrayList<String> teleportButtonLore = new ArrayList<>();
         teleportButtonLore.add(ChatColor.GRAY + "Cost: " + ChatColor.GREEN + "$" + normalTeleportPrice +" " + ChatColor.GRAY + "(0% VIP+ Discount)");
         teleportButtonLore.add(" ");
-        teleportButtonLore.add(ChatColor.GRAY + "▸ Click to teleport to");
-        teleportButtonLore.add(ChatColor.GRAY + "▸ your claim.");
+        teleportButtonLore.add(ChatColor.GRAY + "â–¸ Click to teleport to");
+        teleportButtonLore.add(ChatColor.GRAY + "â–¸ your claim.");
         teleportButtonLore.add(" ");
         teleportButtonLore.add(ChatColor.GRAY + "(Not meant as replacement for");
         teleportButtonLore.add(ChatColor.GRAY + "/home, hence the cost.)");
 
         if(player.hasPermission("vipplus.perks") || player.hasPermission("booster.perks") || player.hasPermission("perks.claimTeleportDiscount")){
             teleportButtonLore.set(0,
-                    ChatColor.GRAY + "▸ Cost: " + ChatColor.RED + ChatColor.STRIKETHROUGH + "$" + normalTeleportPrice + ChatColor.RESET + ChatColor.GREEN + " $" + getTeleportCost(player));
+                    ChatColor.GRAY + "â–¸ Cost: " + ChatColor.RED + ChatColor.STRIKETHROUGH + "$" + normalTeleportPrice + ChatColor.RESET + ChatColor.GREEN + " $" + getTeleportCost(player));
         }
 
         if(player.hasPermission("perks.claimTeleportDiscount") && player.hasPermission("booster.perks")){

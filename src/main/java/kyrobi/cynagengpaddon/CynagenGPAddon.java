@@ -26,13 +26,7 @@ public final class CynagenGPAddon extends JavaPlugin {
         plugin = this;
         this.saveDefaultConfig();
 
-        Datastore.initialize();
-//        for (Map.Entry<Integer, ClaimData> entry : myDataStore.entrySet()) {
-//            Integer claimID = entry.getKey();
-//            ClaimData claimData = entry.getValue();
-//
-//            System.out.println("ClaimID " + claimID);
-//        }
+        Bukkit.getScheduler().runTaskAsynchronously(this, Datastore::initialize);
 
 
         Bukkit.getConsoleSender().sendMessage("CynagenGPAddon");

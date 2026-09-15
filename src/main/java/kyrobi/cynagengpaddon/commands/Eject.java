@@ -70,6 +70,10 @@ public class Eject implements CommandExecutor {
 
         // Check if the player is inside a claim
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(currentPlayerLocation, false, null);
+        if(essSpawn == null){
+            player.sendMessage(ChatColor.RED + "EssentialsSpawn is not available. Cannot eject.");
+            return false;
+        }
         Location spawn = essSpawn.getSpawn("default");
 
 

@@ -10,6 +10,8 @@ import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -41,6 +43,10 @@ public class ClaimsMember {
 
         ChestGui gui = new ChestGui(6, "Permissions");
 
+        // SECURITY: cancel ALL clicks/drags (top AND bottom inventory).
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
+
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
         ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
@@ -70,15 +76,15 @@ public class ClaimsMember {
          */
         ArrayList<String> managerButtonLore = new ArrayList<>();
         managerButtonLore.add("");
-        managerButtonLore.add(ChatColor.GRAY + "▸ Players with manager access are");
-        managerButtonLore.add(ChatColor.GRAY + "▸ allowed to grant other players trust");
-        managerButtonLore.add(ChatColor.GRAY + "▸ based on the highest trust they");
-        managerButtonLore.add(ChatColor.GRAY + "▸ themself have.");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ Players with manager access are");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ allowed to grant other players trust");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ based on the highest trust they");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ themself have.");
         managerButtonLore.add("");
-        managerButtonLore.add(ChatColor.GRAY + "▸ This won't grant them any access to your");
-        managerButtonLore.add(ChatColor.GRAY + "▸ claim by default. You will still need to");
-        managerButtonLore.add(ChatColor.GRAY + "▸ give them builder, container, or accessor.");
-        managerButtonLore.add(ChatColor.GRAY + "▸ Grant with: " + ChatColor.GREEN + "/permissiontrust");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ This won't grant them any access to your");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ claim by default. You will still need to");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ give them builder, container, or accessor.");
+        managerButtonLore.add(ChatColor.GRAY + "â–¸ Grant with: " + ChatColor.GREEN + "/permissiontrust");
         ItemStack managerButton = Utils.itemGenerator(Material.COMPARATOR, ChatColor.GREEN + "Managers", managerButtonLore);
         navigation.addItem(new GuiItem(managerButton, event -> {
             event.setCancelled(true);
@@ -90,10 +96,10 @@ public class ClaimsMember {
          */
         ArrayList<String> builderButtonLore = new ArrayList<>();
         builderButtonLore.add("");
-        builderButtonLore.add(ChatColor.GRAY + "▸ Players with builder access are");
-        builderButtonLore.add(ChatColor.GRAY + "▸ allowed full access to your claim.");
+        builderButtonLore.add(ChatColor.GRAY + "â–¸ Players with builder access are");
+        builderButtonLore.add(ChatColor.GRAY + "â–¸ allowed full access to your claim.");
         builderButtonLore.add("");
-        builderButtonLore.add(ChatColor.GRAY + "▸ Grant with: " + ChatColor.GREEN + "/trust");
+        builderButtonLore.add(ChatColor.GRAY + "â–¸ Grant with: " + ChatColor.GREEN + "/trust");
         ItemStack builderButton = Utils.itemGenerator(Material.CRAFTING_TABLE, ChatColor.GREEN + "Builders", builderButtonLore);
         navigation.addItem(new GuiItem(builderButton, event -> {
             event.setCancelled(true);
@@ -106,12 +112,12 @@ public class ClaimsMember {
          */
         ArrayList<String> containerButtonLore = new ArrayList<>();
         containerButtonLore.add("");
-        containerButtonLore.add(ChatColor.GRAY + "▸ Players with container access are");
-        containerButtonLore.add(ChatColor.GRAY + "▸ allowed to use your buttons,");
-        containerButtonLore.add(ChatColor.GRAY + "▸ levers, beds, crafting gear,");
-        containerButtonLore.add(ChatColor.GRAY + "▸ containers, and animals.");
+        containerButtonLore.add(ChatColor.GRAY + "â–¸ Players with container access are");
+        containerButtonLore.add(ChatColor.GRAY + "â–¸ allowed to use your buttons,");
+        containerButtonLore.add(ChatColor.GRAY + "â–¸ levers, beds, crafting gear,");
+        containerButtonLore.add(ChatColor.GRAY + "â–¸ containers, and animals.");
         containerButtonLore.add("");
-        containerButtonLore.add(ChatColor.GRAY + "▸ Grant with: " + ChatColor.GREEN + "/containertrust");
+        containerButtonLore.add(ChatColor.GRAY + "â–¸ Grant with: " + ChatColor.GREEN + "/containertrust");
         ItemStack containerButton = Utils.itemGenerator(Material.CHEST, ChatColor.GREEN + "Containers", containerButtonLore);
         navigation.addItem(new GuiItem(containerButton, event -> {
             event.setCancelled(true);
@@ -124,10 +130,10 @@ public class ClaimsMember {
          */
         ArrayList<String> accessButtonLore = new ArrayList<>();
         accessButtonLore.add("");
-        accessButtonLore.add(ChatColor.GRAY + "▸ Gives a player permission to use");
-        accessButtonLore.add(ChatColor.GRAY + "▸ your buttons, levers, and beds.");
+        accessButtonLore.add(ChatColor.GRAY + "â–¸ Gives a player permission to use");
+        accessButtonLore.add(ChatColor.GRAY + "â–¸ your buttons, levers, and beds.");
         accessButtonLore.add("");
-        accessButtonLore.add(ChatColor.GRAY + "▸ Grant with: " + ChatColor.GREEN + "/accesstrust");
+        accessButtonLore.add(ChatColor.GRAY + "â–¸ Grant with: " + ChatColor.GREEN + "/accesstrust");
         ItemStack accessButton = Utils.itemGenerator(Material.RED_BED, ChatColor.GREEN + "Accessors", accessButtonLore);
         navigation.addItem(new GuiItem(accessButton, event -> {
             event.setCancelled(true);

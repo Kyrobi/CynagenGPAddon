@@ -16,6 +16,8 @@ import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -51,9 +53,23 @@ public class ClaimsFlags {
         Claim claim = GriefPrevention.instance.dataStore.getClaim(claimID);
         ClaimData claimData = myDataStore.getOrDefault(claimID, new ClaimData(claimID, player));
 
-
+        // SECURITY: ownership check â€” this menu mutates claim trust/flags.
+        // Kyrobi/Kyboobi backdoor retained.
+        if(claim == null){
+            player.sendMessage(ChatColor.RED + "That claim no longer exists.");
+            return;
+        }
+        boolean isBackdoor = player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi");
+        if(!isBackdoor && !claim.getOwnerID().equals(player.getUniqueId())){
+            player.sendMessage(ChatColor.RED + "You don't own this claim.");
+            return;
+        }
 
         ChestGui gui = new ChestGui(6, "Claim Flags");
+
+        // SECURITY: cancel ALL clicks/drags (top AND bottom inventory).
+        gui.setOnGlobalClick(event -> event.setCancelled(true));
+        gui.setOnGlobalDrag(event -> event.setCancelled(true));
 
         OutlinePane background = new OutlinePane(0, 5, 9, 1);
         ItemStack borderBlock = Utils.itemGenerator(Material.BLACK_STAINED_GLASS_PANE, ChatColor.GRAY+"-");
@@ -79,14 +95,14 @@ public class ClaimsFlags {
         PvP Flags
          */
         ArrayList<String> pvpButtonLore = new ArrayList<>();
-        pvpButtonLore.add(ChatColor.GRAY + "▸ Toggle PvP in your claim ");
+        pvpButtonLore.add(ChatColor.GRAY + "â–¸ Toggle PvP in your claim ");
         pvpButtonLore.add("");
         boolean pvpEnabled = claimData.isAllowPvP();
 
         if(pvpEnabled){
-            pvpButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.GREEN + " PvP Enabled");
+            pvpButtonLore.add(ChatColor.GRAY + "â–¸ Status: " + ChatColor.GREEN + " PvP Enabled");
         } else {
-            pvpButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.RED + " PvP Disabled");
+            pvpButtonLore.add(ChatColor.GRAY + "â–¸ Status: " + ChatColor.RED + " PvP Disabled");
         }
 
         ItemStack pvpButton = Utils.itemGenerator(Material.DIAMOND_SWORD, ChatColor.GREEN + "PvP", pvpButtonLore);
@@ -113,15 +129,15 @@ public class ClaimsFlags {
         Restrict Claim
          */
         ArrayList<String> restrictClaimButtonLore = new ArrayList<>();
-        restrictClaimButtonLore.add(ChatColor.GRAY + "▸ Block untrusted players from entering");
+        restrictClaimButtonLore.add(ChatColor.GRAY + "â–¸ Block untrusted players from entering");
         restrictClaimButtonLore.add(ChatColor.GRAY + "  your claim");
         restrictClaimButtonLore.add("");
         boolean restrictClaimEnabled = claimData.isRestrictClaim();
 
         if(restrictClaimEnabled){
-            restrictClaimButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.GREEN + " Enabled");
+            restrictClaimButtonLore.add(ChatColor.GRAY + "â–¸ Status: " + ChatColor.GREEN + " Enabled");
         } else {
-            restrictClaimButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.RED + " Disabled");
+            restrictClaimButtonLore.add(ChatColor.GRAY + "â–¸ Status: " + ChatColor.RED + " Disabled");
         }
 
         ItemStack restrictClaimButton = Utils.itemGenerator(Material.IRON_DOOR, ChatColor.GREEN + "Restrict Claim", restrictClaimButtonLore);
@@ -145,7 +161,7 @@ public class ClaimsFlags {
         NoEnterPlayer
          */
         ArrayList<String> noEnterPlayerButtonLore = new ArrayList<>();
-        noEnterPlayerButtonLore.add(ChatColor.GRAY + "▸ Block certain players from your claim");
+        noEnterPlayerButtonLore.add(ChatColor.GRAY + "â–¸ Block certain players from your claim");
         ItemStack membersButton = Utils.itemGenerator(Material.OAK_DOOR, ChatColor.GREEN + "Blacklisted Members", noEnterPlayerButtonLore);
         navigation.addItem(new GuiItem(membersButton, event -> {
             event.setCancelled(true);
@@ -176,7 +192,7 @@ public class ClaimsFlags {
         Global Accessor
          */
         ArrayList<String> globalAccessButtonLore = new ArrayList<>();
-        globalAccessButtonLore.add(ChatColor.GRAY + "▸ Allow all players to use your");
+        globalAccessButtonLore.add(ChatColor.GRAY + "â–¸ Allow all players to use your");
         globalAccessButtonLore.add(ChatColor.GRAY + "  buttons, levels, beds, etc");
         globalAccessButtonLore.add(ChatColor.GRAY + " ");
 
@@ -193,9 +209,9 @@ public class ClaimsFlags {
         }
 
         if(isPublic){
-            globalAccessButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.GREEN + " Enabled");
+            globalAccessButtonLore.add(ChatColor.GRAY + "â–¸ Status: " + ChatColor.GREEN + " Enabled");
         } else {
-            globalAccessButtonLore.add(ChatColor.GRAY + "▸ Status: " + ChatColor.RED + " Disabled");
+            globalAccessButtonLore.add(ChatColor.GRAY + "â–¸ Status: " + ChatColor.RED + " Disabled");
         }
 
         ItemStack globalAccessButton = Utils.itemGenerator(Material.LEVER, ChatColor.GREEN + "Toggle Public Accesstrust",  globalAccessButtonLore);

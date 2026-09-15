@@ -45,21 +45,23 @@ public class ShovelHover implements Listener {
             List<CompletableFuture<Chunk>> chunkFutures = getChunksAroundPlayer(player, Bukkit.getViewDistance());
 
             CompletableFuture.allOf(chunkFutures.toArray(new CompletableFuture[0])).thenAccept(v -> {
-                Set<Claim> claims = new HashSet<>();
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    Set<Claim> claims = new HashSet<>();
 
-                // Process each loaded chunk
-                for (CompletableFuture<Chunk> futureChunk : chunkFutures) {
-                    Chunk chunk = futureChunk.join();  // Get the loaded chunk
+                    // Process each loaded chunk
+                    for (CompletableFuture<Chunk> futureChunk : chunkFutures) {
+                        Chunk chunk = futureChunk.join();  // Get the loaded chunk
 
-                    // Fetch claims for each chunk and add them to the set
-                    Collection<Claim> chunkClaims = GriefPrevention.instance.dataStore.getClaims(chunk.getX(), chunk.getZ());
-                    claims.addAll(chunkClaims);
-                }
+                        // Fetch claims for each chunk and add them to the set
+                        Collection<Claim> chunkClaims = GriefPrevention.instance.dataStore.getClaims(chunk.getX(), chunk.getZ());
+                        claims.addAll(chunkClaims);
+                    }
 
-                // Fire the ClaimInspectionEvent with the found claims
-                ClaimInspectionEvent claimInspectionEvent = new ClaimInspectionEvent(e.getPlayer(), null, claims, true);
-                Bukkit.getServer().getPluginManager().callEvent(claimInspectionEvent);
-                player.sendMessage(filler + "\n \n \n" + ChatColor.GREEN + "View all your claims with " + ChatColor.GOLD + "/claims" + ChatColor.GREEN + "!\n" + ChatColor.GRAY + "(You can also teleport to them!)" + "\n \n \n" + filler);
+                    // Fire the ClaimInspectionEvent with the found claims
+                    ClaimInspectionEvent claimInspectionEvent = new ClaimInspectionEvent(e.getPlayer(), null, claims, true);
+                    Bukkit.getServer().getPluginManager().callEvent(claimInspectionEvent);
+                    player.sendMessage(filler + "\n \n \n" + ChatColor.GREEN + "View all your claims with " + ChatColor.GOLD + "/claims" + ChatColor.GREEN + "!\n" + ChatColor.GRAY + "(You can also teleport to them!)" + "\n \n \n" + filler);
+                });
             });
 
 //            List<Chunk> chunksAroundPlayer = getChunksAroundPlayer(player, Bukkit.getViewDistance());

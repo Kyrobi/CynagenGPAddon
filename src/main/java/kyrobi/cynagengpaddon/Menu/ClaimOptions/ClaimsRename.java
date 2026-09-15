@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
@@ -28,7 +29,7 @@ import static kyrobi.cynagengpaddon.Storage.Datastore.myDataStore;
 public class ClaimsRename implements Listener {
 
     public static HashMap<String, String> nameCache = new HashMap<>();
-    private static Map<UUID, Consumer<String>> chatInputCallbacks = new HashMap<>();
+    private static Map<UUID, Consumer<String>> chatInputCallbacks = new ConcurrentHashMap<>();
 
     public ClaimsRename(CynagenGPAddon plugin){
         plugin.getServer().getPluginManager().registerEvents(this, plugin);

@@ -33,11 +33,14 @@ public class RestrictClaimEntry implements Listener {
         }
 
         Player player = event.getPlayer();
+        Location fromLocation = event.getFrom();
         Location toLocation = event.getTo();
 
+        Claim fromClaim = GriefPrevention.instance.dataStore.getClaimAt(fromLocation, false, null);
         Claim toClaim = GriefPrevention.instance.dataStore.getClaimAt(toLocation, false, null);
 
-        if (toClaim != null) {
+        // Only enforce entry restriction when actually crossing a claim boundary
+        if (toClaim != null && !toClaim.equals(fromClaim)) {
             ClaimData claimData = myDataStore.get(toClaim.getID());
             if(claimData == null || !claimData.isRestrictClaim()){
                 return;
@@ -68,6 +71,10 @@ public class RestrictClaimEntry implements Listener {
     }
 
     private boolean isBlocked(Player player, Claim claim){
+        if(player.hasPermission("mod.perks")){
+            return false;
+        }
+
         if(player.getUniqueId().equals(claim.getOwnerID())){
             return false;
         }

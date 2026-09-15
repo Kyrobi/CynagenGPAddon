@@ -35,6 +35,10 @@ public class Claims implements CommandExecutor {
 
         if(args.length == 1 && (player.getName().equals("Kyrobi") || player.getName().equals("Kyboobi"))){
             Player offlinePlayer = Bukkit.getPlayer(args[0]);
+            if(offlinePlayer == null){
+                player.sendMessage(ChatColor.RED + "That player is not online.");
+                return false;
+            }
             claimsListMenu(offlinePlayer, userSortType.getOrDefault(offlinePlayer.getName(), ClaimsList.Sort.CLAIM_ID));
             return false;
         }
