@@ -1,5 +1,6 @@
 package kyrobi.cynagengpaddon;
 
+import kyrobi.cynagengpaddon.Features.CushionProtection;
 import kyrobi.cynagengpaddon.Features.ProtectAnimals;
 import kyrobi.cynagengpaddon.Fixes.MilkBucketDupe;
 import kyrobi.cynagengpaddon.Flags.AllowPvP;
@@ -40,6 +41,7 @@ public final class CynagenGPAddon extends JavaPlugin {
          new NoPlayerEnter(this);
          new ClaimsRename(this);
          new ProtectAnimals(this);
+         new CushionProtection(this);
          new ShovelHover(this);
          new ClaimTime(this);
 

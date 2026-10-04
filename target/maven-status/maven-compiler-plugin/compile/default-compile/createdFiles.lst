@@ -13,6 +13,7 @@ kyrobi\cynagengpaddon\Listeners\CommandOverride.class
 kyrobi\cynagengpaddon\Listeners\ShovelHover.class
 kyrobi\cynagengpaddon\Menu\ClaimsList$Sort.class
 kyrobi\cynagengpaddon\Storage\Datastore.class
+kyrobi\cynagengpaddon\Features\CushionProtection.class
 kyrobi\cynagengpaddon\Flags\DenyEntry.class
 kyrobi\cynagengpaddon\Storage\ClaimData.class
 kyrobi\cynagengpaddon\Menu\ClaimOptions\ClaimsTrust.class

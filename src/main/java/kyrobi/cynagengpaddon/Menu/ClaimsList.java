@@ -177,7 +177,7 @@ public class ClaimsList {
              */
             Claim claimAtPlayer = GriefPrevention.instance.dataStore.getClaim(i.getID());
             if(claimAtPlayer.contains(player.getLocation(), true, false)){
-                itemMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+                itemMeta.addEnchant(Enchantment.UNBREAKING, 1, false);
                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 lore.add("");
                 lore.add(ChatColor.GREEN + "You are currently in this claim");
