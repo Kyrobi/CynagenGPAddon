@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
 import java.util.function.Supplier;
 
@@ -60,6 +61,27 @@ public class CushionProtection implements Listener {
         }
 
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(event.getEntity().getLocation(), false, null);
+        if (claim == null) {
+            return;
+        }
+
+        String denial = denialReason(player, claim, event);
+        if (denial != null) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You cannot break cushions inside a claim you don't have build access to.");
+        }
+    }
+
+    // Cushion break on attack goes through Paper's PrePlayerAttackEntityEvent, not a damage event
+    @EventHandler
+    public void onCushionAttack(PrePlayerAttackEntityEvent event) {
+        if (!(event.getAttacked() instanceof Cushion)) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(event.getAttacked().getLocation(), false, null);
         if (claim == null) {
             return;
         }
