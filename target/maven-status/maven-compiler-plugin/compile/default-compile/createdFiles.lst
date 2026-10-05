@@ -1,5 +1,6 @@
 kyrobi\cynagengpaddon\CynagenGPAddon.class
 kyrobi\cynagengpaddon\Menu\ClaimsOption.class
+kyrobi\cynagengpaddon\Flags\ClaimMovementHandler.class
 kyrobi\cynagengpaddon\Menu\ClaimOptions\ClaimsTrust$TRUST_TYPE.class
 kyrobi\cynagengpaddon\Flags\AllowPvP.class
 kyrobi\cynagengpaddon\Menu\ClaimOptions\FlagsPage\NoPlayerEnter.class
@@ -17,6 +18,7 @@ kyrobi\cynagengpaddon\Features\CushionProtection.class
 kyrobi\cynagengpaddon\Flags\DenyEntry.class
 kyrobi\cynagengpaddon\Storage\ClaimData.class
 kyrobi\cynagengpaddon\Menu\ClaimOptions\ClaimsTrust.class
+kyrobi\cynagengpaddon\Features\CushionProtection$PendingKey.class
 kyrobi\cynagengpaddon\Utils.class
 kyrobi\cynagengpaddon\Listeners\ClaimVisualizer$FACE.class
 kyrobi\cynagengpaddon\Listeners\EntityDamage.class
@@ -26,7 +28,6 @@ kyrobi\cynagengpaddon\Fixes\MilkBucketDupe.class
 kyrobi\cynagengpaddon\Menu\ClaimsOption$1.class
 kyrobi\cynagengpaddon\Listeners\ClaimCreate.class
 kyrobi\cynagengpaddon\Menu\ClaimOptions\ClaimsRename.class
-kyrobi\cynagengpaddon\Flags\EnterExitMessage.class
 kyrobi\cynagengpaddon\Flags\RestrictClaimEntry.class
 kyrobi\cynagengpaddon\Menu\ClaimOptions\FlagsPage\ClaimMessage.class
 kyrobi\cynagengpaddon\commands\Claims.class

@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.ArrayList;
@@ -22,35 +21,6 @@ public class RestrictClaimEntry implements Listener {
     public RestrictClaimEntry(CynagenGPAddon plugin){
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-    }
-
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if (event.getFrom().getBlockX() == event.getTo().getBlockX()
-                && event.getFrom().getBlockY() == event.getTo().getBlockY()
-                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
-            return;
-        }
-
-        Player player = event.getPlayer();
-        Location fromLocation = event.getFrom();
-        Location toLocation = event.getTo();
-
-        Claim fromClaim = GriefPrevention.instance.dataStore.getClaimAt(fromLocation, false, null);
-        Claim toClaim = GriefPrevention.instance.dataStore.getClaimAt(toLocation, false, null);
-
-        // Only enforce entry restriction when actually crossing a claim boundary
-        if (toClaim != null && !toClaim.equals(fromClaim)) {
-            ClaimData claimData = myDataStore.get(toClaim.getID());
-            if(claimData == null || !claimData.isRestrictClaim()){
-                return;
-            }
-
-            if(isBlocked(player, toClaim)){
-                event.setCancelled(true);
-                player.sendMessage("You must be trusted in this claim to enter.");
-            }
-        }
     }
 
     @EventHandler
